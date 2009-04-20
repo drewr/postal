@@ -1,6 +1,7 @@
 (ns com.draines.postal.core
   (:use [clojure.contrib.test-is :only [is deftest run-tests]]
-        [com.draines.postal.date :only [make-date]])
+        [com.draines.postal.date :only [make-date]]
+        [com.draines.postal.sendmail :only [sendmail-send]])
   (:import [java.util Date Properties]
            [javax.mail Session Transport Message$RecipientType]
            [javax.mail.internet MimeMessage InternetAddress]))
@@ -47,32 +48,17 @@
   (let [jmsg (make-jmessage msg)]
     (Transport/send jmsg)))
 
-(defn sendmail-send [msg]
-  (let [mail (message->str msg)
-        cmd (concat
-             ["/usr/sbin/sendmail" (format "-f %s" (sender msg))]
-             (recipients msg))
-        pb (ProcessBuilder. cmd)
-        p (.start pb)
-        smtp (java.io.PrintStream. (.getOutputStream p))]
-    (.print smtp mail)
-    (.close smtp)
-    (.waitFor p)
-    (condp = (.exitValue p)
-      0 :success
-      [:error (.exitValue p)])))
-
 (defn send-message [msg]
   (if (:host msg)
     (smtp-send msg)
     (sendmail-send msg)))
 
 (comment
-  (send-message {:from "fee@bar.dom"
-                 :to "Foo Bar <foo@bar.dom>"
-                 :cc ["baz@bar.dom" "quux@bar.dom"]
-                 :date (make-date "yyyy-MM-dd" "2009-01-01")
-                 :subject "Test"
-                 :body "Test!"})
+  (message->str {:from "fee@bar.dom"
+                :to "Foo Bar <foo@bar.dom>"
+                :cc ["baz@bar.dom" "quux@bar.dom"]
+                :date (make-date "yyyy-MM-dd" "2009-01-01")
+                :subject "Test"
+                :body "Test!"})
 
 )
