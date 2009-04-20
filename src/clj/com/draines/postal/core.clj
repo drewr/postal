@@ -44,6 +44,9 @@
       (add-recipient msg rtype addr)))
   msg)
 
+(defn set-from [msg from]
+  (.setFrom (get-message msg) (InternetAddress. from)))
+
 (defn set-subject [msg subj]
   (.setSubject (get-message msg) subj))
 
@@ -52,6 +55,9 @@
 
 (defn set-date [msg date]
   (.setSentDate (get-message msg) date))
+
+(defn get-from [msg]
+  (.getFrom (get-message msg)))
 
 (defn get-subject [msg]
   (.getSubject (get-message msg)))
@@ -63,11 +69,16 @@
   (.getSentDate (get-message msg)))
 
 (defn make-message [attrs]
-  (let [{:keys [to cc bcc date subject body]} attrs
-        msg (merge attrs {:MimeMessage (MimeMessage. (Session/getInstance (java.util.Properties.)))})]
+  (let [{:keys [from to cc bcc date subject body host]} attrs
+        props (doto (java.util.Properties.)
+                (.put "mail.smtp.host" host)
+                (.put "mail.from" from))
+        msg (merge attrs {:Session (Session/getInstance props)})
+        msg (merge msg {:MimeMessage (MimeMessage. (:Session msg))})]
     (add-recipients msg Message$RecipientType/TO to)
     (add-recipients msg Message$RecipientType/CC cc)
     (add-recipients msg Message$RecipientType/BCC bcc)
+    (set-from msg from)
     (set-subject msg subject)
     (set-body msg body)
     (set-date msg date)
@@ -75,7 +86,9 @@
 
 (deftest all
   (let [date (make-date "yyyy-MM-dd" "2009-01-01")
-        msg (make-message {:to "Foo Bar <foo@bar.dom>"
+        msg (make-message {:host "smtp.comcast.net"
+                           :from "fee@bar.dom"
+                           :to "Foo Bar <foo@bar.dom>"
                            :cc ["baz@bar.dom" "quux@bar.dom"]
                            :date date
                            :subject "Test"
