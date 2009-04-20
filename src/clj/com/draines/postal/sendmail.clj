@@ -1,6 +1,14 @@
 (ns com.draines.postal.sendmail
   (:use [com.draines.postal.message :only [message->str sender recipients]]))
 
+(def sendmails ["/usr/lib/sendmail"
+                "/usr/sbin/sendmail"
+                "/usr/bin/sendmail"
+                "/usr/local/lib/sendmail"
+                "/usr/local/sbin/sendmail"
+                "/usr/local/bin/sendmail"
+                "/usr/sbin/msmtp"])
+
 (def errors {0  [:SUCCESS        "message sent"]
              64 [:EX_USAGE       "command line usage error"]
              65 [:EX_DATAERR     "data format error"]
@@ -24,10 +32,13 @@
      :error e
      :message message}))
 
+(defn sendmail-find []
+  (first (filter #(.isFile (java.io.File. %)) sendmails)))
+
 (defn sendmail-send [msg]
   (let [mail (message->str msg)
         cmd (concat
-             ["/usr/sbin/sendmail" (format "-f %s" (sender msg))]
+             [(sendmail-find) (format "-f %s" (sender msg))]
              (recipients msg))
         pb (ProcessBuilder. cmd)
         p (.start pb)
