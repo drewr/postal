@@ -1,5 +1,5 @@
 (ns com.draines.postal.sendmail
-  (:use [com.draines.postal.core :only [message->str sender recipients]]))
+  (:use [com.draines.postal.message :only [message->str sender recipients]]))
 
 (def errors {0  [:SUCCESS        "message sent"]
              64 [:EX_USAGE       "command line usage error"]
