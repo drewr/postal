@@ -1,0 +1,4 @@
+com.draines.postal.core
+com.draines.postal.message
+com.draines.postal.sendmail
+com.draines.postal.smtp

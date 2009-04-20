@@ -1,0 +1,49 @@
+#!/bin/sh
+
+die() {
+  echo $1 1>&2
+  exit 1
+}
+
+HERE=`pwd -P`
+DATE=`date +%Y%m%d%H%M%S`
+VERSION=`git rev-parse HEAD | cut -c-8`
+
+[ "x" == "x$SRC" ] && die "error: please set \$SRC"
+[ "x" == "x$MAIN" ] && die "error: please set \$MAIN"
+[ "x" == "x$PROJECT" ] && die "error: please set \$PROJECT"
+[ "x" == "x$JARHOME" ] && die "error: please set \$JARHOME"
+[ "x" == "x$DEST" ] && die "error: please provide jar destination"
+[ ! -d $DEST ] && mkdir -p $DEST
+
+CLASSES=classes
+NSCOMPILE=$HERE/etc/compile
+JAR=$DEST/$PROJECT-$DATE-$VERSION.jar
+JARS=$HERE/etc/jars-compile
+
+mkdir -p $CLASSES
+[ -d $SRC/clj ] && ( cd $SRC/clj; git archive --format tar head . ) | ( cd $CLASSES; tar xf - )
+[ -d $SRC/jvm ] && ( cd $SRC/jvm; git archive --format tar head . ) | ( cd $CLASSES; tar xf - )
+
+for jarname in `cat $JARS`; do
+  jar=$JARHOME/$jarname
+  echo Packaging $jar
+  ( cd $CLASSES
+    jar tvf $jar | egrep '(class|clj)$' | xargs jar xf $jar - )
+done
+
+java \
+  -cp $CLASSES \
+  -Dclojure.compile.path=$CLASSES \
+  clojure.lang.Compile \
+  `cat $NSCOMPILE | xargs echo` \
+&& \
+( cd $CLASSES
+  jar cfe \
+    $JAR \
+    $MAIN \
+    . ) \
+&& rm -rf $CLASSES
+
+echo Writing $JAR
+
