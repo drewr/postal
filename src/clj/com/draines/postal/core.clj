@@ -5,14 +5,14 @@
            [javax.mail Session Transport Message$RecipientType]
            [javax.mail.internet MimeMessage InternetAddress]))
 
-(defn add-recipient [jmsg rtype addr]
+(defn add-recipient! [jmsg rtype addr]
   (doto jmsg (.addRecipient rtype (InternetAddress. addr))))
 
-(defn add-recipients [jmsg rtype addrs]
+(defn add-recipients! [jmsg rtype addrs]
   (if (string? addrs)
-    (add-recipient jmsg rtype addrs)
+    (add-recipient! jmsg rtype addrs)
     (doseq [addr addrs]
-      (add-recipient jmsg rtype addr)))
+      (add-recipient! jmsg rtype addr)))
   jmsg)
 
 (defn make-jmessage [msg]
@@ -22,9 +22,9 @@
                 (.put "mail.from" from))
         session (Session/getInstance props)
         jmsg (MimeMessage. (:Session msg))]
-    (add-recipients jmsg Message$RecipientType/TO to)
-    (add-recipients jmsg Message$RecipientType/CC cc)
-    (add-recipients jmsg Message$RecipientType/BCC bcc)
+    (add-recipients! jmsg Message$RecipientType/TO to)
+    (add-recipients! jmsg Message$RecipientType/CC cc)
+    (add-recipients! jmsg Message$RecipientType/BCC bcc)
     (.setFrom jmsg (InternetAddress. from))
     (.setSubject jmsg subject)
     (.setText jmsg body)
