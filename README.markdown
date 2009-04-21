@@ -7,16 +7,16 @@ Postal is a library for constructing and sending RFC822-compliant
 Internet email messages.  It wraps the JavaMail package for message
 and SMTP support.  It supports sendmail natively.
 
-### Platforms
+## Platforms
 
 * Any Unix platform that supports Java and sendmail (`msmtp`, et al.)
 * Untested on Windows
 
-### Dependencies
+## Dependencies
 
 * JavaMail ([download](http://draines.com/dist/java/mail-1.4.2.jar))
 
-### Examples
+## Examples
 
 At a bare minimum, provide a map with `:from`, `:to`, `:subject`, and `:body`.
 This will locally inject the message into sendmail.
@@ -43,7 +43,7 @@ To use SMTP, add a `:host` key.
 
 
 
-### Building
+## Building
 
     % env JARHOME=$HOME/tmp/src/jar make
     Packaging /Users/aar/tmp/src/jar/clojure.jar
