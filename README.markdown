@@ -9,7 +9,7 @@ and SMTP support.  It supports sendmail natively.
 
 ### Platforms
 
-* Any Unix platform that supports Java and sendmail (msmtp, et al.)
+* Any Unix platform that supports Java and sendmail (`msmtp`, et al.)
 * Untested on Windows
 
 ### Dependencies
@@ -18,7 +18,7 @@ and SMTP support.  It supports sendmail natively.
 
 ### Examples
 
-At a bare minimum, provide a map with :from, :to, :subject, and :body.
+At a bare minimum, provide a map with `:from`, `:to`, `:subject`, and `:body`.
 This will locally inject the message into sendmail.
 
     user> (in-ns 'com.draines.postal.core)
@@ -31,7 +31,7 @@ This will locally inject the message into sendmail.
     {:code 0, :error :SUCCESS, :message "message sent"}
     com.draines.postal.core> 
 
-To use SMTP, add a :host key.
+To use SMTP, add a `:host` key.
 
     com.draines.postal.core> (send-message {:host "mail.isp.net"
                                             :from "me@draines.com"
