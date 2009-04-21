@@ -36,7 +36,7 @@
                 (.put "mail.smtp.port" (or port "25"))
                 (.put "mail.smtp.from" (or sender from)))
         session (Session/getInstance props)
-        jmsg (MimeMessage. (:Session msg))]
+        jmsg (MimeMessage. session)]
     (add-recipients! jmsg Message$RecipientType/TO to)
     (add-recipients! jmsg Message$RecipientType/CC cc)
     (add-recipients! jmsg Message$RecipientType/BCC bcc)
