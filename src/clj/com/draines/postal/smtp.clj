@@ -4,5 +4,9 @@
 
 (defn smtp-send [msg]
   (let [jmsg (make-jmessage msg)]
-    (Transport/send jmsg)))
+    (try
+     (Transport/send jmsg)
+     {:code 0 :error :SUCCESS :message "message sent"}
+     (catch Exception e
+       {:code 99 :error (class e) :message (.getMessage e)}))))
 
