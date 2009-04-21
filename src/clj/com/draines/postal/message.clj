@@ -30,10 +30,11 @@
   jmsg)
 
 (defn make-jmessage [msg]
-  (let [{:keys [from to cc bcc date subject body host]} msg
+  (let [{:keys [sender from to cc bcc date subject body host port]} msg
         props (doto (java.util.Properties.)
                 (.put "mail.smtp.host" (or host "not.provided"))
-                (.put "mail.from" from))
+                (.put "mail.smtp.port" (or port "25"))
+                (.put "mail.smtp.from" (or sender from)))
         session (Session/getInstance props)
         jmsg (MimeMessage. (:Session msg))]
     (add-recipients! jmsg Message$RecipientType/TO to)
