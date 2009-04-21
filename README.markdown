@@ -14,7 +14,7 @@ and SMTP support.  It supports sendmail natively.
 
 ### Dependencies
 
-* JavaMail ([download](http://draines.com/dist/java/mail-1.4.2.jar))
+* JavaMail ([download](http://draines.com/dist/mail-1.4.2.jar))
 
 ### Examples
 
