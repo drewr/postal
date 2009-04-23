@@ -41,6 +41,21 @@ To use SMTP, add a `:host` key.
     {:code 0, :error :SUCCESS, :message "message sent"}
     com.draines.postal.core> 
 
+Attachments and multipart messages can be added as sequences of maps:
+
+    com.draines.postal.core> (send-message {:host "mail.isp.net"
+                                            :from "me@draines.com"
+                                            :to "foo@example.com"
+                                            :subject "Hi!"
+                                            :body [{:type "text/html"
+                                                    :content "<b>Test!</b>"}
+                                                   ; supports both dispositions:
+                                                   {:type :attachment
+                                                    :content (java.io.File. "/tmp/foo.txt")}
+                                                   {:type :inline
+                                                    :content (java.io.File. "/tmp/foo.txt")}]})
+    {:code 0, :error :SUCCESS, :message "message sent"}
+    com.draines.postal.core>
 
 
 ### Building
@@ -56,6 +71,8 @@ To use SMTP, add a `:host` key.
     Compiling com.draines.postal.sendmail to classes
     Compiling com.draines.postal.smtp to classes
     Writing /Users/aar/src/postal/dist/postal-20090420184320-980d1c20.jar
+    % cp dist/postal-20090420184320-980d1c20.jar $HOME/tmp/src/jar
+    %
 
 ## License
 
