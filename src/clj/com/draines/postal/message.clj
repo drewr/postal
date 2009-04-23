@@ -15,8 +15,9 @@
   (or (:sender msg) (:from msg)))
 
 (defn message->str [msg]
-  (let [out (java.io.ByteArrayOutputStream.)]
-    (.writeTo (make-jmessage msg) out)
+  (let [out (java.io.ByteArrayOutputStream.)
+        jmsg (if (instance? MimeMessage msg) msg (make-jmessage msg))]
+    (.writeTo jmsg out)
     (str out)))
 
 (defn add-recipient! [jmsg rtype addr]
@@ -28,6 +29,19 @@
     (doseq [addr addrs]
       (add-recipient! jmsg rtype addr)))
   jmsg)
+
+(defn add-multipart! [jmsg parts]
+  (let [mp (javax.mail.internet.MimeMultipart.)]
+    (doseq [part parts]
+      (condp (fn [test type] (some #(= % type) test)) (:type part)
+        [:inline :attachment] (.addBodyPart mp
+                                            (doto (javax.mail.internet.MimeBodyPart.)
+                                              (.attachFile (:content part))
+                                              (.setDisposition (name (:type part)))))
+        (.addBodyPart mp
+                      (doto (javax.mail.internet.MimeBodyPart.)
+                        (.setContent (:content part) (:type part))))))
+    (.setContent jmsg mp)))
 
 (defn make-jmessage [msg]
   (let [{:keys [sender from to cc bcc date subject body host port]} msg
@@ -42,11 +56,13 @@
     (add-recipients! jmsg Message$RecipientType/BCC bcc)
     (.setFrom jmsg (InternetAddress. from))
     (.setSubject jmsg subject)
-    (.setText jmsg body)
+    (if (string? body)
+      (.setText jmsg body)
+      (add-multipart! jmsg body))
     (.setSentDate jmsg (or date (make-date)))
     jmsg))
 
-(deftest all
+(deftest test-simple
   (let [m {:from "fee@bar.dom"
            :to "Foo Bar <foo@bar.dom>"
            :cc ["baz@bar.dom" "quux@bar.dom"]
@@ -54,6 +70,38 @@
            :subject "Test"
            :body "Test!"}]
     (is (= "Subject: Test" (re-find #"Subject: Test" (message->str m))))))
+
+(deftest test-multipart
+  (let [m {:from "foo@bar.dom"
+           :to "baz@bar.dom"
+           :subject "Test"
+           :body [{:type "text/html"
+                   :content "<b>some html</b>"}]}]
+    (is (= "multipart/mixed" (re-find #"multipart/mixed" (message->str m))))
+    (is (= "Content-Type: text/html" (re-find #"Content-Type: text/html" (message->str m))))
+    (is (= "some html" (re-find #"some html" (message->str m))))))
+
+(deftest test-inline
+  (let [f (doto (java.io.File/createTempFile "_postal-" ".txt"))
+        _ (doto (java.io.PrintWriter. f) (.println "tempfile contents") (.close))
+        m {:from "foo@bar.dom"
+           :to "baz@bar.dom"
+           :subject "Test"
+           :body [{:type :inline
+                   :content f}]}]
+    (is (= "tempfile" (re-find #"tempfile" (message->str m))))
+    (.delete f)))
+
+(deftest test-attachment
+  (let [f (doto (java.io.File/createTempFile "_postal-" ".txt"))
+        _ (doto (java.io.PrintWriter. f) (.println "tempfile contents") (.close))
+        m {:from "foo@bar.dom"
+           :to "baz@bar.dom"
+           :subject "Test"
+           :body [{:type :attachment
+                   :content f}]}]
+    (is (= "tempfile" (re-find #"tempfile" (message->str m))))
+    (.delete f)))
 
 (comment
   (run-tests))
