@@ -61,8 +61,9 @@ Attachments and multipart messages can be added as sequences of maps:
 ### Building
 
     % env JARHOME=$HOME/tmp/src/jar make
-    Packaging /Users/aar/tmp/src/jar/clojure.jar
-    Packaging /Users/aar/tmp/src/jar/clojure-contrib.jar
+    Extracting /Users/aar/tmp/src/jar/clojure.jar
+    Extracting /Users/aar/tmp/src/jar/clojure-contrib.jar
+    Extracting /Users/aar/tmp/src/jar/mail.jar
     Packaging /Users/aar/tmp/src/jar/mail.jar
     Compiling com.draines.postal.main to classes
     Compiling com.draines.postal.core to classes

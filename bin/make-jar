@@ -17,23 +17,32 @@ VERSION=`git rev-parse HEAD | cut -c-8`
 [ ! -d $DEST ] && mkdir -p $DEST
 
 CLASSES=classes
+BUILD=build
 NSCOMPILE=$HERE/etc/compile
 JAR=$DEST/$PROJECT-$DATE-$VERSION.jar
-JARS=$HERE/etc/jars-compile
+JARCOMPILE=$HERE/etc/jars-compile
+JARDIST=$HERE/etc/jars-dist
 
 mkdir -p $CLASSES
 [ -d $SRC/clj ] && ( cd $SRC/clj; git archive --format tar head . ) | ( cd $CLASSES; tar xf - )
 [ -d $SRC/jvm ] && ( cd $SRC/jvm; git archive --format tar head . ) | ( cd $CLASSES; tar xf - )
 
-for jarname in `cat $JARS`; do
+mkdir -p $BUILD
+
+for jarname in `cat $JARCOMPILE`; do
+  jar=$JARHOME/$jarname
+  echo Extracting $jar
+  ( cd $BUILD; jar xf $jar )
+done
+
+for jarname in `cat $JARDIST`; do
   jar=$JARHOME/$jarname
   echo Packaging $jar
-  ( cd $CLASSES
-    jar tvf $jar | egrep '(class|clj)$' | xargs jar xf $jar - )
+  ( cd $CLASSES; jar tvf $jar | egrep '(class|clj)$' | xargs jar xf $jar - )
 done
 
 java \
-  -cp $CLASSES \
+  -cp $BUILD:$CLASSES \
   -Dclojure.compile.path=$CLASSES \
   clojure.lang.Compile \
   `cat $NSCOMPILE | xargs echo` \
@@ -43,7 +52,7 @@ java \
     $JAR \
     $MAIN \
     . ) \
-&& rm -rf $CLASSES
+&& rm -rf $CLASSES $BUILD
 
 echo Writing $JAR
 
