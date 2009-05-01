@@ -14,8 +14,7 @@ and SMTP support.  It supports sendmail natively.
 
 ### Dependencies
 
-* Clojure (last tested with r1359, but will work with [20090320](http://clojure.googlecode.com/files/clojure_20090320.zip))
-* Clojure-contrib (last tested with r727)
+* clojure-contrib
 * JavaMail 1.4.2 ([download](http://draines.com/dist/mail-1.4.2.jar))
 
 ### Examples
