@@ -50,7 +50,7 @@ Attachments and multipart messages can be added as sequences of maps:
                                             :subject "Hi!"
                                             :body [{:type "text/html"
                                                     :content "<b>Test!</b>"}
-                                                   ; supports both dispositions:
+                                                ;;;; supports both dispositions:
                                                    {:type :attachment
                                                     :content (java.io.File. "/tmp/foo.txt")}
                                                    {:type :inline
