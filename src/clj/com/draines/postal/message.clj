@@ -50,7 +50,8 @@
 
 (defn make-jmessage
   ([msg]
-     (let [{:keys [sender from host port]} msg
+     (let [{:keys [sender from]} msg
+           {:keys [host port]} ^msg
            props (doto (java.util.Properties.)
                    (.put "mail.smtp.host" (or host "not.provided"))
                    (.put "mail.smtp.port" (or port "25"))

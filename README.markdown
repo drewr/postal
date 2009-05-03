@@ -32,10 +32,10 @@ This will locally inject the message into sendmail.
     {:code 0, :error :SUCCESS, :message "message sent"}
     com.draines.postal.core> 
 
-To use SMTP, add a `:host` key.
+To use SMTP, add metadata with a `:host` key.
 
-    com.draines.postal.core> (send-message {:host "mail.isp.net"
-                                            :from "me@draines.com"
+    com.draines.postal.core> (send-message #^{:host "mail.isp.net"}
+                                           {:from "me@draines.com"
                                             :to "foo@example.com"
                                             :subject "Hi!"
                                             :body "Test."})
@@ -44,8 +44,8 @@ To use SMTP, add a `:host` key.
 
 Attachments and multipart messages can be added as sequences of maps:
 
-    com.draines.postal.core> (send-message {:host "mail.isp.net"
-                                            :from "me@draines.com"
+    com.draines.postal.core> (send-message #^{:host "mail.isp.net"}
+                                           {:from "me@draines.com"
                                             :to "foo@example.com"
                                             :subject "Hi!"
                                             :body [{:type "text/html"
