@@ -43,6 +43,11 @@
                         (.setContent (:content part) (:type part))))))
     (.setContent jmsg mp)))
 
+(defn add-body! [jmsg body]
+  (if (string? body)
+    (doto jmsg (.setText body))
+    (doto jmsg (add-multipart! body))))
+
 (defn make-jmessage
   ([msg]
      (let [{:keys [sender from host port]} msg
@@ -55,16 +60,14 @@
   ([msg session]
      (let [{:keys [from to cc bcc date subject body]} msg
            jmsg (MimeMessage. session)]
-       (add-recipients! jmsg Message$RecipientType/TO to)
-       (add-recipients! jmsg Message$RecipientType/CC cc)
-       (add-recipients! jmsg Message$RecipientType/BCC bcc)
-       (.setFrom jmsg (InternetAddress. from))
-       (.setSubject jmsg subject)
-       (if (string? body)
-         (.setText jmsg body)
-         (add-multipart! jmsg body))
-       (.setSentDate jmsg (or date (make-date)))
-       jmsg)))
+       (doto jmsg
+         (add-recipients! Message$RecipientType/TO to)
+         (add-recipients! Message$RecipientType/CC cc)
+         (add-recipients! Message$RecipientType/BCC bcc)
+         (.setFrom (InternetAddress. from))
+         (.setSubject subject)
+         (.setSentDate (or date (make-date)))
+         (add-body! body)))))
 
 (deftest test-simple
   (let [m {:from "fee@bar.dom"
