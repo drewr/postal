@@ -55,7 +55,7 @@
                    (.put "mail.smtp.host" (or host "not.provided"))
                    (.put "mail.smtp.port" (or port "25"))
                    (.put "mail.smtp.from" (or sender from)))
-           session (Session/getInstance props)]
+           session (or (:session ^msg) (Session/getInstance props))]
        (make-jmessage msg session)))
   ([msg session]
      (let [{:keys [from to cc bcc date subject body]} msg
