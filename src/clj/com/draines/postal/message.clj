@@ -43,24 +43,28 @@
                         (.setContent (:content part) (:type part))))))
     (.setContent jmsg mp)))
 
-(defn make-jmessage [msg]
-  (let [{:keys [sender from to cc bcc date subject body host port]} msg
-        props (doto (java.util.Properties.)
-                (.put "mail.smtp.host" (or host "not.provided"))
-                (.put "mail.smtp.port" (or port "25"))
-                (.put "mail.smtp.from" (or sender from)))
-        session (Session/getInstance props)
-        jmsg (MimeMessage. session)]
-    (add-recipients! jmsg Message$RecipientType/TO to)
-    (add-recipients! jmsg Message$RecipientType/CC cc)
-    (add-recipients! jmsg Message$RecipientType/BCC bcc)
-    (.setFrom jmsg (InternetAddress. from))
-    (.setSubject jmsg subject)
-    (if (string? body)
-      (.setText jmsg body)
-      (add-multipart! jmsg body))
-    (.setSentDate jmsg (or date (make-date)))
-    jmsg))
+(defn make-jmessage
+  ([msg]
+     (let [{:keys [sender from host port]} msg
+           props (doto (java.util.Properties.)
+                   (.put "mail.smtp.host" (or host "not.provided"))
+                   (.put "mail.smtp.port" (or port "25"))
+                   (.put "mail.smtp.from" (or sender from)))
+           session (Session/getInstance props)]
+       (make-jmessage msg session)))
+  ([msg session]
+     (let [{:keys [from to cc bcc date subject body]} msg
+           jmsg (MimeMessage. session)]
+       (add-recipients! jmsg Message$RecipientType/TO to)
+       (add-recipients! jmsg Message$RecipientType/CC cc)
+       (add-recipients! jmsg Message$RecipientType/BCC bcc)
+       (.setFrom jmsg (InternetAddress. from))
+       (.setSubject jmsg subject)
+       (if (string? body)
+         (.setText jmsg body)
+         (add-multipart! jmsg body))
+       (.setSentDate jmsg (or date (make-date)))
+       jmsg)))
 
 (deftest test-simple
   (let [m {:from "fee@bar.dom"
