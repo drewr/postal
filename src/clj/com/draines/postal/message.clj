@@ -31,12 +31,14 @@
   jmsg)
 
 (defn add-multipart! [jmsg parts]
-  (let [mp (javax.mail.internet.MimeMultipart.)]
+  (let [mp (javax.mail.internet.MimeMultipart.)
+        fileize (fn [x]
+                  (if (instance? java.io.File x) x (java.io.File. x)))]
     (doseq [part parts]
       (condp (fn [test type] (some #(= % type) test)) (:type part)
         [:inline :attachment] (.addBodyPart mp
                                             (doto (javax.mail.internet.MimeBodyPart.)
-                                              (.attachFile (:content part))
+                                              (.attachFile (fileize (:content part)))
                                               (.setDisposition (name (:type part)))))
         (.addBodyPart mp
                       (doto (javax.mail.internet.MimeBodyPart.)
@@ -101,15 +103,18 @@
     (.delete f)))
 
 (deftest test-attachment
-  (let [f (doto (java.io.File/createTempFile "_postal-" ".txt"))
-        _ (doto (java.io.PrintWriter. f) (.println "tempfile contents") (.close))
+  (let [f1 (doto (java.io.File/createTempFile "_postal-" ".txt"))
+        _ (doto (java.io.PrintWriter. f1) (.println "tempfile contents") (.close))
+        f2 "/etc/resolv.conf"
         m {:from "foo@bar.dom"
            :to "baz@bar.dom"
            :subject "Test"
            :body [{:type :attachment
-                   :content f}]}]
+                   :content f1}
+                  {:type :attachment
+                   :content f2}]}]
     (is (= "tempfile" (re-find #"tempfile" (message->str m))))
-    (.delete f)))
+    (.delete f1)))
 
 (comment
   (run-tests))
