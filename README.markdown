@@ -12,11 +12,6 @@ and SMTP support.  It supports sendmail natively.
 * Any Unix platform that supports Java and sendmail (`msmtp`, et al.)
 * Untested on Windows
 
-### Dependencies
-
-* clojure-contrib
-* JavaMail 1.4.2 ([download](http://draines.com/dist/jvm/mail-1.4.2.jar))
-
 ### Examples
 
 At a bare minimum, provide a map with `:from`, `:to`, `:subject`, and `:body`.
@@ -61,22 +56,11 @@ Attachments and multipart messages can be added as sequences of maps:
 
 ### Building
 
-    % export JARHOME=$HOME/tmp/src/jar
-    % make
-    Extracting /Users/aar/tmp/src/jar/clojure.jar
-    Extracting /Users/aar/tmp/src/jar/clojure-contrib.jar
-    Extracting /Users/aar/tmp/src/jar/mail.jar
-    Packaging /Users/aar/tmp/src/jar/mail.jar
-    Compiling com.draines.postal.main to classes
-    Compiling com.draines.postal.core to classes
-    Compiling com.draines.postal.date to classes
-    Compiling com.draines.postal.message to classes
-    Compiling com.draines.postal.sendmail to classes
-    Compiling com.draines.postal.smtp to classes
-    Writing /Users/aar/src/postal/dist/postal-20090420184320-980d1c20.jar
-    % cp dist/postal-20090420184320-980d1c20.jar $JARHOME
-    %
+    % ant dist
+    % ls dist
+    postal-20090726194310+32b4b1f.jar
+
 
 ## License
 
-Postal is (c) 2009 by Drew Raines and released under the MIT license.
+Postal is (c) 2009 Drew Raines and released under the MIT license.
