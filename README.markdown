@@ -12,6 +12,10 @@ and SMTP support.  It supports sendmail natively.
 * Any Unix platform that supports Java and sendmail (`msmtp`, et al.)
 * Untested on Windows
 
+### Dependencies
+
+* JavaMail 1.4.2 (in `lib/` after build)
+
 ### Examples
 
 At a bare minimum, provide a map with `:from`, `:to`, `:subject`, and `:body`.
