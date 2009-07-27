@@ -1,5 +1,5 @@
 (ns com.draines.postal.message
-  (:use [clojure.contrib.test-is :only [run-tests deftest is]]
+  (:use [clojure.test :only [run-tests deftest is]]
         [com.draines.postal.date :only [make-date]])
   (:import [java.util Properties]
            [javax.mail Session Message$RecipientType]

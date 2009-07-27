@@ -1,0 +1,4 @@
+#!/bin/sh
+
+git log --pretty=format:"%ai %h" -1 | \
+  perl -p -e 's,(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d) [^ ]+ ([a-z0-9]+),\1\2\3\4\5\6+\7,'
