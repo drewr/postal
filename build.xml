@@ -31,7 +31,7 @@
   </target>
 
   <target name="resolve" depends="install-ivy" description="Retrieve dependencies">
-    <ivy:retrieve />
+    <ivy:retrieve conf="ivy-${ant.java.version}"/>
   </target>
 
   <target name="clean"
