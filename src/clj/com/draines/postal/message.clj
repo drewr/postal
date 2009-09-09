@@ -23,11 +23,14 @@
 (defn add-recipient! [jmsg rtype addr]
   (doto jmsg (.addRecipient rtype (InternetAddress. addr))))
 
+(defn add-recipients!* [jmsg rtype addrs]
+  (doto jmsg (.addRecipients rtype (into-array (map #(InternetAddress. %) addrs)))))
+
 (defn add-recipients! [jmsg rtype addrs]
-  (if (string? addrs)
-    (add-recipient! jmsg rtype addrs)
-    (doseq [addr addrs]
-      (add-recipient! jmsg rtype addr)))
+  (when addrs
+    (if (string? addrs)
+      (add-recipient! jmsg rtype addrs)
+      (add-recipients!* jmsg rtype addrs)))
   jmsg)
 
 (defn add-multipart! [jmsg parts]
@@ -75,11 +78,12 @@
 (deftest test-simple
   (let [m {:from "fee@bar.dom"
            :to "Foo Bar <foo@bar.dom>"
-           :cc ["baz@bar.dom" "quux@bar.dom"]
+           :cc ["baz@bar.dom" "Quux <quux@bar.dom>"]
            :date (java.util.Date.)
            :subject "Test"
            :body "Test!"}]
-    (is (= "Subject: Test" (re-find #"Subject: Test" (message->str m))))))
+    (is (= "Subject: Test" (re-find #"Subject: Test" (message->str m))))
+    (is (re-find #"Cc: baz@bar.dom, quux@bar.dom" (message->str m)))))
 
 (deftest test-multipart
   (let [m {:from "foo@bar.dom"
