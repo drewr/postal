@@ -35,8 +35,11 @@
 (defn sendmail-find []
   (first (filter #(.isFile (java.io.File. %)) sendmails)))
 
+(defn sanitize [text]
+  (.replaceAll text "\r\n" (System/getProperty "line.separator")))
+
 (defn sendmail-send [msg]
-  (let [mail (message->str msg)
+  (let [mail (sanitize (message->str msg))
         cmd (concat
              [(sendmail-find) (format "-f %s" (sender msg))]
              (recipients msg))
