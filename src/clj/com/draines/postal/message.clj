@@ -83,7 +83,7 @@
            :subject "Test"
            :body "Test!"}]
     (is (= "Subject: Test" (re-find #"Subject: Test" (message->str m))))
-    (is (re-find #"Cc: baz@bar.dom, quux@bar.dom" (message->str m)))))
+    (is (re-find #"Cc: baz@bar.dom, Quux <quux@bar.dom>" (message->str m)))))
 
 (deftest test-multipart
   (let [m {:from "foo@bar.dom"
