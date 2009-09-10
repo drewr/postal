@@ -15,10 +15,10 @@
   (or (:sender msg) (:from msg)))
 
 (defn message->str [msg]
-  (let [out (java.io.ByteArrayOutputStream.)
-        jmsg (if (instance? MimeMessage msg) msg (make-jmessage msg))]
-    (.writeTo jmsg out)
-    (str out)))
+  (with-open [out (java.io.ByteArrayOutputStream.)]
+    (let [jmsg (if (instance? MimeMessage msg) msg (make-jmessage msg))]
+      (.writeTo jmsg out)
+      (str out))))
 
 (defn add-recipient! [jmsg rtype addr]
   (doto jmsg (.addRecipient rtype (InternetAddress. addr))))
