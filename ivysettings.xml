@@ -4,6 +4,7 @@
     <chain name="team">
     <url name="draines">
       <ivy pattern="http://ivy.draines.com/[module]/[revision]/ivy-[revision].xml" />
+      <artifact pattern="http://ivy.draines.com/[artifact]-[revision].[ext]" />
       <artifact pattern="http://ivy.draines.com/[module]/[artifact]-[revision].[ext]" />
       <artifact pattern="http://draines.com/dist/jvm/[artifact]-[revision].[ext]" />
     </url>
