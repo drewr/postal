@@ -56,12 +56,12 @@
 (defn make-jmessage
   ([msg]
      (let [{:keys [sender from]} msg
-           {:keys [host port]} ^msg
+           {:keys [host port]} (meta msg)
            props (doto (java.util.Properties.)
                    (.put "mail.smtp.host" (or host "not.provided"))
                    (.put "mail.smtp.port" (or port "25"))
                    (.put "mail.smtp.from" (or sender from)))
-           session (or (:session ^msg) (Session/getInstance props))]
+           session (or (:session (meta msg)) (Session/getInstance props))]
        (make-jmessage msg session)))
   ([msg session]
      (let [{:keys [from to cc bcc date subject body]} msg

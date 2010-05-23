@@ -8,7 +8,7 @@
                  (:subject msg)
                  (:body msg))
     (throw (Exception. "message needs at least :from, :to, :subject, and :body")))
-  (if (:host ^msg)
+  (if (:host (meta msg))
     (smtp-send msg)
     (sendmail-send msg)))
 
