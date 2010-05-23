@@ -24,7 +24,8 @@
   (doto jmsg (.addRecipient rtype (InternetAddress. addr))))
 
 (defn add-recipients!* [jmsg rtype addrs]
-  (doto jmsg (.addRecipients rtype (into-array (map #(InternetAddress. %) addrs)))))
+  (doto jmsg
+    (.addRecipients rtype (into-array (map #(InternetAddress. %) addrs)))))
 
 (defn add-recipients! [jmsg rtype addrs]
   (when addrs
@@ -39,10 +40,11 @@
                   (if (instance? java.io.File x) x (java.io.File. x)))]
     (doseq [part parts]
       (condp (fn [test type] (some #(= % type) test)) (:type part)
-        [:inline :attachment] (.addBodyPart mp
-                                            (doto (javax.mail.internet.MimeBodyPart.)
-                                              (.attachFile (fileize (:content part)))
-                                              (.setDisposition (name (:type part)))))
+        [:inline :attachment]
+        (.addBodyPart mp
+                      (doto (javax.mail.internet.MimeBodyPart.)
+                        (.attachFile (fileize (:content part)))
+                        (.setDisposition (name (:type part)))))
         (.addBodyPart mp
                       (doto (javax.mail.internet.MimeBodyPart.)
                         (.setContent (:content part) (:type part))))))
@@ -92,12 +94,14 @@
            :body [{:type "text/html"
                    :content "<b>some html</b>"}]}]
     (is (= "multipart/mixed" (re-find #"multipart/mixed" (message->str m))))
-    (is (= "Content-Type: text/html" (re-find #"Content-Type: text/html" (message->str m))))
+    (is (= "Content-Type: text/html"
+           (re-find #"Content-Type: text/html" (message->str m))))
     (is (= "some html" (re-find #"some html" (message->str m))))))
 
 (deftest test-inline
   (let [f (doto (java.io.File/createTempFile "_postal-" ".txt"))
-        _ (doto (java.io.PrintWriter. f) (.println "tempfile contents") (.close))
+        _ (doto (java.io.PrintWriter. f)
+            (.println "tempfile contents") (.close))
         m {:from "foo@bar.dom"
            :to "baz@bar.dom"
            :subject "Test"
@@ -108,7 +112,8 @@
 
 (deftest test-attachment
   (let [f1 (doto (java.io.File/createTempFile "_postal-" ".txt"))
-        _ (doto (java.io.PrintWriter. f1) (.println "tempfile contents") (.close))
+        _ (doto (java.io.PrintWriter. f1)
+            (.println "tempfile contents") (.close))
         f2 "/etc/resolv.conf"
         m {:from "foo@bar.dom"
            :to "baz@bar.dom"
