@@ -60,9 +60,7 @@ Attachments and multipart messages can be added as sequences of maps:
 
 ### Building
 
-    % ant dist
-    % ls dist
-    postal-20090726194310+32b4b1f.jar
+    % lein deps && lein jar
 
 
 ## License
