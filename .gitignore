@@ -1,3 +1,5 @@
 /dist
 /build
 /lib
+/classes
+*.jar
