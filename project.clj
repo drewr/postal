@@ -12,4 +12,5 @@
                com.draines.postal.date
                com.draines.postal.main
                com.draines.postal.sendmail
-               com.draines.postal.smtp])
+               com.draines.postal.smtp]
+  :main com.draines.postal.main)
