@@ -1,7 +1,7 @@
 (ns com.draines.postal.message
   (:use [clojure.test :only [run-tests deftest is]]
         [com.draines.postal.date :only [make-date]])
-  (:import [java.util Properties]
+  (:import [java.util Properties UUID]
            [javax.mail Session Message$RecipientType]
            [javax.mail.internet MimeMessage InternetAddress]))
 
@@ -77,6 +77,14 @@
          (.setSentDate (or date (make-date)))
          (add-body! body)))))
 
+(defn make-fixture [from to & {:keys [tag]}]
+  (let [uuid (str (UUID/randomUUID))
+        tag (or tag "[POSTAL]")]
+    {:from from
+     :to to
+     :subject (format "%s Test -- %s" tag uuid)
+     :body (format "Test %s" uuid)}))
+
 (deftest test-simple
   (let [m {:from "fee@bar.dom"
            :to "Foo Bar <foo@bar.dom>"
@@ -125,5 +133,10 @@
     (is (= "tempfile" (re-find #"tempfile" (message->str m))))
     (.delete f1)))
 
-(comment
-  (run-tests))
+(deftest test-fixture
+  (let [from "foo@bar.dom"
+        to "baz@bar.dom"
+        tag "[TEST]"]
+    (is (re-find #"^\[TEST" (:subject (make-fixture from to :tag tag))))))
+
+
