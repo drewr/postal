@@ -15,15 +15,15 @@
     (sendmail-send msg)))
 
 (defn stress [profile]
-  (let [defaults {:host "localhost"
-                  :port 25
-                  :from "foo@lolz.dom"
-                  :to "bar@lolz.dom"
-                  :num 1
-                  :delay 100
-                  :threads 1}
+  (let [defaults #^{:host "localhost"
+                    :port 25
+                    :num 1
+                    :delay 100
+                    :threads 1}
+                 {:from "foo@lolz.dom"
+                  :to "bar@lolz.dom"}
         {:keys [host port from to num delay threads]}
-        (merge defaults profile)]
+        (merge (meta defaults) defaults profile)]
     (println (format "sent %s msgs to %s:%s"
                      (spam host port from to num delay threads)
                      host port))))
