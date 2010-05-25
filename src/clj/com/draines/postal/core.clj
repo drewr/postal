@@ -1,6 +1,7 @@
 (ns com.draines.postal.core
   (:use [com.draines.postal.sendmail :only [sendmail-send]]
-        [com.draines.postal.smtp :only [smtp-send]]))
+        [com.draines.postal.smtp :only [smtp-send]]
+        [com.draines.postal.stress :only [spam]]))
 
 (defn send-message [msg]
   (when-not (and (:from msg)
@@ -13,3 +14,16 @@
     (smtp-send msg)
     (sendmail-send msg)))
 
+(defn stress [profile]
+  (let [defaults {:host "localhost"
+                  :port 25
+                  :from "foo@lolz.dom"
+                  :to "bar@lolz.dom"
+                  :num 1
+                  :delay 100
+                  :threads 1}
+        {:keys [host port from to num delay threads]}
+        (merge defaults profile)]
+    (println (format "sent %s msgs to %s:%s"
+                     (spam host port from to num delay threads)
+                     host port))))
