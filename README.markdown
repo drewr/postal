@@ -57,6 +57,19 @@ Attachments and multipart messages can be added as sequences of maps:
     {:code 0, :error :SUCCESS, :message "message sent"}
     com.draines.postal.core>
 
+You can stress-test a server by:
+
+    com.draines.postal.core> (stress #^{:host "localhost"}
+                                     {:from "foo@lolz.dom"
+                                      :to "bar@lolz.dom"
+                                      :num     1000
+                                      :delay   250   ;; msecs
+                                      :threads 5     ;; concurrent connections
+                                     })
+    spamming localhost with 1000 msgs
+    nil
+    com.draines.postal.core>
+
 
 ### Building
 
