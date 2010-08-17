@@ -50,10 +50,19 @@
                         (.setContent (:content part) (:type part))))))
     (.setContent jmsg mp)))
 
+(defn add-extra! [jmsg msgrest]
+  (doseq [[n v] msgrest]
+    (.addHeader jmsg (if (keyword? n) (name n) n) v))
+  jmsg)
+
 (defn add-body! [jmsg body]
   (if (string? body)
     (doto jmsg (.setText body))
     (doto jmsg (add-multipart! body))))
+
+(defn drop-keys [m ks]
+  (select-keys m
+               (clojure.set/difference (set (keys m)) (set ks))))
 
 (defn make-jmessage
   ([msg]
@@ -66,16 +75,17 @@
            session (or (:session (meta msg)) (Session/getInstance props))]
        (make-jmessage msg session)))
   ([msg session]
-     (let [{:keys [from to cc bcc date subject body]} msg
+     (let [standard [:from :to :cc :bcc :date :subject :body]
            jmsg (MimeMessage. session)]
        (doto jmsg
-         (add-recipients! Message$RecipientType/TO to)
-         (add-recipients! Message$RecipientType/CC cc)
-         (add-recipients! Message$RecipientType/BCC bcc)
-         (.setFrom (InternetAddress. from))
-         (.setSubject subject)
-         (.setSentDate (or date (make-date)))
-         (add-body! body)))))
+         (add-recipients! Message$RecipientType/TO (:to msg))
+         (add-recipients! Message$RecipientType/CC (:cc msg))
+         (add-recipients! Message$RecipientType/BCC (:bcc msg))
+         (add-extra! (drop-keys msg standard))
+         (.setFrom (InternetAddress. (:from msg)))
+         (.setSubject (:subject msg))
+         (.setSentDate (or (:date msg) (make-date)))
+         (add-body! (:body msg))))))
 
 (defn make-fixture [from to & {:keys [tag]}]
   (let [uuid (str (UUID/randomUUID))
@@ -139,4 +149,10 @@
         tag "[TEST]"]
     (is (re-find #"^\[TEST" (:subject (make-fixture from to :tag tag))))))
 
-
+(deftest test-extra-headers
+  (let [m {:from "foo@bar.dom"
+           :to "baz@bar.dom"
+           :subject "Test"
+           :User-Agent "Lorem Ipsum"
+           :body "Foo!"}]
+    (is (re-find #"User-Agent: Lorem Ipsum" (message->str m)))))
