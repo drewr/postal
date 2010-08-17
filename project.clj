@@ -7,10 +7,4 @@
                   :exclusions [javax.activation/activation]]]
   :dev-dependencies [[swank-clojure "1.2.1"]]
   :source-path "src/clj"
-  :namespaces [com.draines.postal.core
-               com.draines.postal.message
-               com.draines.postal.date
-               com.draines.postal.main
-               com.draines.postal.sendmail
-               com.draines.postal.smtp]
   :main com.draines.postal.main)
