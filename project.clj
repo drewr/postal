@@ -1,4 +1,4 @@
-(defproject postal "1.2.0-SNAPSHOT"
+(defproject postal "1.2.0"
   :resources-path "etc"
   :repositories {"java.net" "http://download.java.net/maven/2"}
   :dependencies [[org.clojure/clojure "1.2.0-master-SNAPSHOT"]
