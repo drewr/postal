@@ -5,7 +5,8 @@
                  [org.clojure/clojure-contrib "1.2.0-SNAPSHOT"]
                  [javax.mail/mail "1.4.4-SNAPSHOT"
                   :exclusions [javax.activation/activation]]]
-  :dev-dependencies [[swank-clojure "1.2.1"]]
+  :dev-dependencies [[swank-clojure "1.2.1"]
+                     [lein-clojars "0.5.0-SNAPSHOT"]]
   :source-path "src/clj"
   :namespaces [com.draines.postal.core
                com.draines.postal.message
