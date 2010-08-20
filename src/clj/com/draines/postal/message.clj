@@ -3,7 +3,8 @@
         [com.draines.postal.date :only [make-date]])
   (:import [java.util Properties UUID]
            [javax.mail Session Message$RecipientType]
-           [javax.mail.internet MimeMessage InternetAddress]))
+           [javax.mail.internet MimeMessage InternetAddress
+            AddressException]))
 
 (declare make-jmessage)
 
@@ -21,17 +22,16 @@
       (str out))))
 
 (defn add-recipient! [jmsg rtype addr]
-  (doto jmsg (.addRecipient rtype (InternetAddress. addr))))
-
-(defn add-recipients!* [jmsg rtype addrs]
-  (doto jmsg
-    (.addRecipients rtype (into-array (map #(InternetAddress. %) addrs)))))
+  (try
+    (doto jmsg (.addRecipient rtype (InternetAddress. addr)))
+    (catch AddressException _)))
 
 (defn add-recipients! [jmsg rtype addrs]
   (when addrs
     (if (string? addrs)
       (add-recipient! jmsg rtype addrs)
-      (add-recipients!* jmsg rtype addrs)))
+      (doseq [addr addrs]
+        (add-recipient! jmsg rtype addr))))
   jmsg)
 
 (defn add-multipart! [jmsg parts]
@@ -156,3 +156,10 @@
            :User-Agent "Lorem Ipsum"
            :body "Foo!"}]
     (is (re-find #"User-Agent: Lorem Ipsum" (message->str m)))))
+
+(deftest test-bad-addrs
+  (let [m {:from "foo@bar.dom"
+           :to "badddz@@@bar.dom"
+           :subject "Test"
+           :body "Bad recipient!"}]
+    (is (not (re-find #"badddz" (message->str m))))))
