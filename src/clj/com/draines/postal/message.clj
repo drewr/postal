@@ -15,6 +15,11 @@
 (defn sender [msg]
   (or (:sender msg) (:from msg)))
 
+(defn make-address [addr]
+  (try
+    (InternetAddress. addr)
+    (catch Exception _)))
+
 (defn message->str [msg]
   (with-open [out (java.io.ByteArrayOutputStream.)]
     (let [jmsg (if (instance? MimeMessage msg) msg (make-jmessage msg))]
@@ -22,9 +27,10 @@
       (str out))))
 
 (defn add-recipient! [jmsg rtype addr]
-  (try
-    (doto jmsg (.addRecipient rtype (InternetAddress. addr)))
-    (catch AddressException _)))
+  (if-let [addr (make-address addr)]
+    (doto jmsg
+      (.addRecipient rtype addr))
+    jmsg))
 
 (defn add-recipients! [jmsg rtype addrs]
   (when addrs
@@ -81,10 +87,10 @@
          (add-recipients! Message$RecipientType/TO (:to msg))
          (add-recipients! Message$RecipientType/CC (:cc msg))
          (add-recipients! Message$RecipientType/BCC (:bcc msg))
-         (add-extra! (drop-keys msg standard))
-         (.setFrom (InternetAddress. (:from msg)))
+         (.setFrom (make-address (:from msg)))
          (.setSubject (:subject msg))
          (.setSentDate (or (:date msg) (make-date)))
+         (add-extra! (drop-keys msg standard))
          (add-body! (:body msg))))))
 
 (defn make-fixture [from to & {:keys [tag]}]
@@ -158,8 +164,9 @@
     (is (re-find #"User-Agent: Lorem Ipsum" (message->str m)))))
 
 (deftest test-bad-addrs
-  (let [m {:from "foo@bar.dom"
+  (let [m {:from "foo @bar.dom"
            :to "badddz@@@bar.dom"
            :subject "Test"
            :body "Bad recipient!"}]
-    (is (not (re-find #"badddz" (message->str m))))))
+    (is (not (re-find #"badddz" (message->str m))))
+    (is (not (re-find #"foo @bar" (message->str m))))))
