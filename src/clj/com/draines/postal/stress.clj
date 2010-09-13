@@ -44,7 +44,7 @@
 
 (defn spam
   ([host port from to n]
-     (spam host from to port n 0))
+     (spam host port from to n 0))
   ([host port from to n delay]
      (log (format "(thread: %s) %s msgs -> %s"
                   (-> (Thread/currentThread) .getId)
