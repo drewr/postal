@@ -1,5 +1,5 @@
-(ns com.draines.postal.sendmail
-  (:use [com.draines.postal.message :only [message->str sender recipients]]))
+(ns postal.sendmail
+  (:use [postal.message :only [message->str sender recipients]]))
 
 (def sendmails ["/usr/lib/sendmail"
                 "/usr/sbin/sendmail"

@@ -21,29 +21,29 @@ and SMTP support.  It supports sendmail natively.
 At a bare minimum, provide a map with `:from`, `:to`, `:subject`, and `:body`.
 This will locally inject the message into sendmail.
 
-    user> (in-ns 'com.draines.postal.core)
-    #<Namespace com.draines.postal.core>
-    com.draines.postal.core> (send-message {:from "me@draines.com"
+    user> (in-ns 'postal.core)
+    #<Namespace postal.core>
+    postal.core> (send-message {:from "me@draines.com"
                                             :to ["mom@example.com" "dad@example.com"]
                                             :cc "bob@example.com"
                                             :subject "Hi!"
                                             :body "Test."})
     {:code 0, :error :SUCCESS, :message "message sent"}
-    com.draines.postal.core> 
+    postal.core> 
 
 To use SMTP, add metadata with a `:host` key.
 
-    com.draines.postal.core> (send-message #^{:host "mail.isp.net"}
+    postal.core> (send-message #^{:host "mail.isp.net"}
                                            {:from "me@draines.com"
                                             :to "foo@example.com"
                                             :subject "Hi!"
                                             :body "Test."})
     {:code 0, :error :SUCCESS, :message "message sent"}
-    com.draines.postal.core> 
+    postal.core> 
 
 Attachments and multipart messages can be added as sequences of maps:
 
-    com.draines.postal.core> (send-message #^{:host "mail.isp.net"}
+    postal.core> (send-message #^{:host "mail.isp.net"}
                                            {:from "me@draines.com"
                                             :to "foo@example.com"
                                             :subject "Hi!"
@@ -55,11 +55,11 @@ Attachments and multipart messages can be added as sequences of maps:
                                                    {:type :inline
                                                     :content (java.io.File. "/tmp/foo.txt")}]})
     {:code 0, :error :SUCCESS, :message "message sent"}
-    com.draines.postal.core>
+    postal.core>
 
 You can stress-test a server by:
 
-    com.draines.postal.core> (stress #^{:host "localhost"
+    postal.core> (stress #^{:host "localhost"
                                         :num     1000
                                         :delay   250   ;; msecs
                                         :threads 5     ;; concurrent connections}
@@ -67,7 +67,7 @@ You can stress-test a server by:
                                       :to "bar@lolz.dom"})
     sent 1000 msgs to localhost:25
     nil
-    com.draines.postal.core>
+    postal.core>
 
 
 ### Building

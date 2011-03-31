@@ -1,7 +1,7 @@
-(ns com.draines.postal.core
-  (:use [com.draines.postal.sendmail :only [sendmail-send]]
-        [com.draines.postal.smtp :only [smtp-send]]
-        [com.draines.postal.stress :only [spam]]))
+(ns postal.core
+  (:use [postal.sendmail :only [sendmail-send]]
+        [postal.smtp :only [smtp-send]]
+        [postal.stress :only [spam]]))
 
 (defn send-message [msg]
   (when-not (and (:from msg)

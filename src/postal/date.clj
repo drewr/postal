@@ -1,4 +1,4 @@
-(ns com.draines.postal.date
+(ns postal.date
   (:import [java.util Date]
            [java.text SimpleDateFormat ParsePosition]))
 
