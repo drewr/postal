@@ -70,15 +70,23 @@
   (select-keys m
                (clojure.set/difference (set (keys m)) (set ks))))
 
+(defn make-authenticator [user pass]
+  (proxy [javax.mail.Authenticator] []
+    (getPasswordAuthentication [] (javax.mail.PasswordAuthentication. user pass))))
+
 (defn make-jmessage
   ([msg]
      (let [{:keys [sender from]} msg
-           {:keys [host port]} (meta msg)
+           {:keys [host port username password]} (meta msg)
            props (doto (java.util.Properties.)
                    (.put "mail.smtp.host" (or host "not.provided"))
                    (.put "mail.smtp.port" (or port "25"))
-                   (.put "mail.smtp.from" (or sender from)))
-           session (or (:session (meta msg)) (Session/getInstance props))]
+                   (.put "mail.smtp.from" (or sender from))
+                   (.put "mail.smtp.auth" (if username "true" "false"))
+                   )
+           session (or (:session (meta msg)) (if username
+                                               (Session/getInstance props (make-authenticator username password))
+                                               (Session/getInstance props)))]
        (make-jmessage msg session)))
   ([msg session]
      (let [standard [:from :to :cc :bcc :date :subject :body]

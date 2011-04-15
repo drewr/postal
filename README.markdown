@@ -41,6 +41,18 @@ To use SMTP, add metadata with a `:host` key.
     {:code 0, :error :SUCCESS, :message "message sent"}
     com.draines.postal.core> 
 
+Authenticated SMTP is done by adding the username and password options.
+
+    com.draines.postal.core> (send-message #^{:host "mail.isp.net"
+                                              :username "myispusername"
+                                              :password "myisppassword"}
+                                           {:from "me@draines.com"
+                                            :to "foo@example.com"
+                                            :subject "Hi!"
+                                            :body "Test."})
+    {:code 0, :error :SUCCESS, :message "message sent"}
+    com.draines.postal.core> 
+
 Attachments and multipart messages can be added as sequences of maps:
 
     com.draines.postal.core> (send-message #^{:host "mail.isp.net"}
