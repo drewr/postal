@@ -41,11 +41,11 @@ To use SMTP, add metadata with a `:host` key.
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core> 
 
-Authenticated SMTP is done by adding the username and password options.
+Authenticate to SMTP server with `:user` and `:pass`.
 
     postal.core> (send-message #^{:host "mail.isp.net"
-                                  :username "myispusername"
-                                  :password "myisppassword"}
+                                  :user "jsmith"
+                                  :pass "sekrat!!1"}
                                {:from "me@draines.com"
                                 :to "foo@example.com"
                                 :subject "Hi!"
