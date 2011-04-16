@@ -34,37 +34,49 @@ This will locally inject the message into sendmail.
 To use SMTP, add metadata with a `:host` key.
 
     postal.core> (send-message #^{:host "mail.isp.net"}
-                                           {:from "me@draines.com"
-                                            :to "foo@example.com"
-                                            :subject "Hi!"
-                                            :body "Test."})
+                               {:from "me@draines.com"
+                                :to "foo@example.com"
+                                :subject "Hi!"
+                                :body "Test."})
+    {:code 0, :error :SUCCESS, :message "message sent"}
+    postal.core> 
+
+Authenticated SMTP is done by adding the username and password options.
+
+    postal.core> (send-message #^{:host "mail.isp.net"
+                                  :username "myispusername"
+                                  :password "myisppassword"}
+                               {:from "me@draines.com"
+                                :to "foo@example.com"
+                                :subject "Hi!"
+                                :body "Test."})
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core> 
 
 Attachments and multipart messages can be added as sequences of maps:
 
     postal.core> (send-message #^{:host "mail.isp.net"}
-                                           {:from "me@draines.com"
-                                            :to "foo@example.com"
-                                            :subject "Hi!"
-                                            :body [{:type "text/html"
-                                                    :content "<b>Test!</b>"}
-                                                ;;;; supports both dispositions:
-                                                   {:type :attachment
-                                                    :content (java.io.File. "/tmp/foo.txt")}
-                                                   {:type :inline
-                                                    :content (java.io.File. "/tmp/foo.txt")}]})
+                               {:from "me@draines.com"
+                                :to "foo@example.com"
+                                :subject "Hi!"
+                                :body [{:type "text/html"
+                                        :content "<b>Test!</b>"}
+                                    ;;;; supports both dispositions:
+                                       {:type :attachment
+                                        :content (java.io.File. "/tmp/foo.txt")}
+                                       {:type :inline
+                                        :content (java.io.File. "/tmp/foo.txt")}]})
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core>
 
 You can stress-test a server by:
 
     postal.core> (stress #^{:host "localhost"
-                                        :num     1000
-                                        :delay   250   ;; msecs
-                                        :threads 5     ;; concurrent connections}
-                                     {:from "foo@lolz.dom"
-                                      :to "bar@lolz.dom"})
+                            :num     1000
+                            :delay   250   ;; msecs
+                            :threads 5     ;; concurrent connections}
+                         {:from "foo@lolz.dom"
+                          :to "bar@lolz.dom"})
     sent 1000 msgs to localhost:25
     nil
     postal.core>
