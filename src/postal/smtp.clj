@@ -1,5 +1,5 @@
-(ns com.draines.postal.smtp
-  (:use [com.draines.postal.message :only [make-jmessage]])
+(ns postal.smtp
+  (:use [postal.message :only [make-jmessage]])
   (:import [javax.mail Transport Session]))
 
 (defn smtp-send

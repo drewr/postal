@@ -7,6 +7,4 @@
                  [javax.mail/mail "1.4.4"
                   :exclusions [javax.activation/activation]]]
   :dev-dependencies [[swank-clojure "1.2.1"]
-                     [lein-clojars "0.6.0"]]
-  :source-path "src/clj"
-  :main com.draines.postal.main)
+                     [lein-clojars "0.6.0"]])
