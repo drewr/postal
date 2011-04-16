@@ -1,4 +1,4 @@
-(defproject com.draines/postal "1.5.0"
+(defproject com.draines/postal "1.6-SNAPSHOT"
   :resources-path "etc"
   :repositories {"java.net" "http://download.java.net/maven/2"
                  "clojars" "http://clojars.org/repo"}
