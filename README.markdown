@@ -87,6 +87,13 @@ You can stress-test a server by:
     % lein deps && lein jar
 
 
+## Contributors
+
+André Branco    
+Joe Gallo    
+Jeff Palmucci    
+Paul Stadig    
+
 ## License
 
 Postal is (c) 2009 Drew Raines and released under the MIT license.
