@@ -1,5 +1,6 @@
 (ns postal.message
-  (:use [postal.date :only [make-date]])
+  (:use [clojure.set :only [difference]]
+        [postal.date :only [make-date]])
   (:import [java.util Properties UUID]
            [javax.mail Session Message$RecipientType]
            [javax.mail.internet MimeMessage InternetAddress
@@ -68,7 +69,7 @@
 
 (defn drop-keys [m ks]
   (select-keys m
-               (clojure.set/difference (set (keys m)) (set ks))))
+               (difference (set (keys m)) (set ks))))
 
 (defn make-auth [user pass]
   (proxy [javax.mail.Authenticator] []
