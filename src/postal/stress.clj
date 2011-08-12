@@ -7,15 +7,12 @@
 
 (def DATEFORMAT (SimpleDateFormat. "yyyy-MM-dd.HH:mm:ss"))
 
-(def *from* "foo@lolz.dom")
-(def *to* "bar@lolz.dom")
-
-(defonce *counter* (atom 0))
+(defonce counter (atom 0))
 
 (defn reset-counter! []
-  (reset! *counter* 0))
+  (reset! counter 0))
 
-(def *logger* (agent nil))
+(def logger (agent nil))
 
 (defn log* [x s]
   (let [s* (format "%s %s"
@@ -26,7 +23,7 @@
     s*))
 
 (defn log [& s]
-  (send-off *logger* log* s))
+  (send-off logger log* s))
 
 (defn partition-work
   "Break up total number of messages evenly over desired number of threads."
@@ -51,7 +48,7 @@
      (let [date (.format DATEFORMAT (Date.))]
        (dotimes [x n]
          (smtp-send host port (make-fixture from to))
-         (swap! *counter* inc)
+         (swap! counter inc)
          (Thread/sleep delay))
        n))
   ([host port from to n delay threads]
