@@ -7,15 +7,15 @@
 
 (def DATEFORMAT (SimpleDateFormat. "yyyy-MM-dd.HH:mm:ss"))
 
-(def *from* "foo@lolz.dom")
-(def *to* "bar@lolz.dom")
+(def ^{:dynamic true} *from* "foo@lolz.dom")
+(def ^{:dynamic true} *to* "bar@lolz.dom")
 
-(defonce *counter* (atom 0))
+(defonce ^{:dynamic true} *counter* (atom 0))
 
 (defn reset-counter! []
   (reset! *counter* 0))
 
-(def *logger* (agent nil))
+(def ^{:dynamic true} *logger* (agent nil))
 
 (defn log* [x s]
   (let [s* (format "%s %s"
