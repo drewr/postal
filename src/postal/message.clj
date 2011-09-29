@@ -1,5 +1,6 @@
 (ns postal.message
   (:use [postal.date :only [make-date]])
+  (:require [clojure.set])
   (:import [java.util Properties UUID]
            [javax.mail Session Message$RecipientType]
            [javax.mail.internet MimeMessage InternetAddress
