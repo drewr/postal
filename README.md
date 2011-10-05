@@ -96,4 +96,4 @@ Paul Stadig
 
 ## License
 
-Postal is (c) 2009 Drew Raines and released under the MIT license.
+Postal is (c) 2009-2011 Andrew A. Raines and released under the MIT license.
