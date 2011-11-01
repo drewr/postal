@@ -1,5 +1,5 @@
 (ns postal.smtp
-  (:use [postal.message :only [make-jmessage mk-props]])
+  (:use [postal.message :only [make-jmessage make-props]])
   (:import [javax.mail Transport Session]))
 
 (defn smtp-send
@@ -10,10 +10,10 @@
             (catch Exception e
               {:code 99 :error (class e) :message (.getMessage e)}))))
   ([auth-map & msgs]
-     (let [{:keys [host port user pass] :or {host "localhost"
-                                             port 25}}
+     (let [{:keys [host port user pass sender] :or {host "localhost"
+                                                    port 25}}
            auth-map
-           session (doto (Session/getInstance (mk-props nil auth-map))
+           session (doto (Session/getInstance (make-props sender auth-map))
                      (.setDebug false))]
        (with-open [transport (.getTransport session (if (and user pass)
                                                       "smtps"
