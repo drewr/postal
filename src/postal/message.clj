@@ -68,22 +68,35 @@
     (doto jmsg (add-multipart! body))))
 
 (defn drop-keys [m ks]
-  (select-keys m
-               (difference (set (keys m)) (set ks))))
+  (select-keys m (difference (set (keys m))
+                             (set ks))))
 
 (defn make-auth [user pass]
   (proxy [javax.mail.Authenticator] []
     (getPasswordAuthentication [] (PasswordAuthentication. user pass))))
 
+(defmacro do-when
+  [arg condition & body]
+  `(when ~condition
+     (doto ~arg ~@body)))
+
 (defn make-jmessage
   ([msg]
      (let [{:keys [sender from]} msg
-           {:keys [host port user pass]} (meta msg)
+           {:keys [host port user pass ssl]} (meta msg)
            props (doto (java.util.Properties.)
                    (.put "mail.smtp.host" (or host "not.provided"))
                    (.put "mail.smtp.port" (or port "25"))
+                   (.put "mail.smtp.socketFactory.port" (or port "25"))
                    (.put "mail.smtp.from" (or sender from))
-                   (.put "mail.smtp.auth" (if user "true" "false")))
+                   (.put "mail.smtp.auth" (if user "true" "false"))
+                   (do-when user
+                            (.put "mail.smtp.user" user))
+                   (do-when ssl
+                            (.put "mail.smtp.starttls.enable" "true")
+                            (.put "mail.smtp.socketFactory.class" 
+                                  "javax.net.ssl.SSLSocketFactory")
+                            (.put "mail.smtp.socketFactory.fallback" "false")))
            session (or (:session (meta msg))
                        (if user
                          (Session/getInstance props (make-auth user pass))
