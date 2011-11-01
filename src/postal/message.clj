@@ -80,23 +80,20 @@
   `(when ~condition
      (doto ~arg ~@body)))
 
+(defn mk-props [sender {:keys [host port user ssl]}]
+  (doto (java.util.Properties.)
+    (.put "mail.smtp.host" (or host "not.provided"))
+    (.put "mail.smtp.port" (or port "25"))
+    (.put "mail.smtp.auth" (if user "true" "false"))
+    (do-when sender (.put "mail.smtp.from" sender))
+    (do-when user (.put "mail.smtp.user" user))
+    (do-when ssl  (.put "mail.smtp.starttls.enable" "true"))))
+
 (defn make-jmessage
   ([msg]
      (let [{:keys [sender from]} msg
-           {:keys [host port user pass ssl]} (meta msg)
-           props (doto (java.util.Properties.)
-                   (.put "mail.smtp.host" (or host "not.provided"))
-                   (.put "mail.smtp.port" (or port "25"))
-                   (.put "mail.smtp.socketFactory.port" (or port "25"))
-                   (.put "mail.smtp.from" (or sender from))
-                   (.put "mail.smtp.auth" (if user "true" "false"))
-                   (do-when user
-                            (.put "mail.smtp.user" user))
-                   (do-when ssl
-                            (.put "mail.smtp.starttls.enable" "true")
-                            (.put "mail.smtp.socketFactory.class" 
-                                  "javax.net.ssl.SSLSocketFactory")
-                            (.put "mail.smtp.socketFactory.fallback" "false")))
+           {:keys [user pass]} (meta msg)
+           props (mk-props (or sender from) (meta msg))
            session (or (:session (meta msg))
                        (if user
                          (Session/getInstance props (make-auth user pass))
