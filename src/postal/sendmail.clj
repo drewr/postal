@@ -9,23 +9,22 @@
                 "/usr/local/bin/sendmail"
                 "/usr/sbin/msmtp"])
 
-(def errors
-  {0  [:SUCCESS        "message sent"]
-   64 [:EX_USAGE       "command line usage error"]
-   65 [:EX_DATAERR     "data format error"]
-   66 [:EX_NOINPUT     "cannot open input"]
-   67 [:EX_NOUSER      "addressee unknown"]
-   68 [:EX_NOHOST      "host name unknown"]
-   69 [:EX_UNAVAILABLE "service unavailable"]
-   70 [:EX_SOFTWARE    "internal software error"]
-   71 [:EX_OSERR       "system error (no fork?)"]
-   72 [:EX_OSFILE      "critical OS file missing"]
-   73 [:EX_CANTCREAT   "can't create (user) output file"]
-   74 [:EX_IOERR       "input/output error"]
-   75 [:EX_TEMPFAIL    "temp failure; user is invited to retry"]
-   76 [:EX_PROTOCOL    "remote error in protocol"]
-   77 [:EX_NOPERM      "permission denied"]
-   78 [:EX_CONFIG      "configuration error"]})
+(def errors {0  [:SUCCESS        "message sent"]
+             64 [:EX_USAGE       "command line usage error"]
+             65 [:EX_DATAERR     "data format error"]
+             66 [:EX_NOINPUT     "cannot open input"]
+             67 [:EX_NOUSER      "addressee unknown"]
+             68 [:EX_NOHOST      "host name unknown"]
+             69 [:EX_UNAVAILABLE "service unavailable"]
+             70 [:EX_SOFTWARE    "internal software error"]
+             71 [:EX_OSERR       "system error (no fork?)"]
+             72 [:EX_OSFILE      "critical OS file missing"]
+             73 [:EX_CANTCREAT   "can't create (user) output file"]
+             74 [:EX_IOERR       "input/output error"]
+             75 [:EX_TEMPFAIL    "temp failure; user is invited to retry"]
+             76 [:EX_PROTOCOL    "remote error in protocol"]
+             77 [:EX_NOPERM      "permission denied"]
+             78 [:EX_CONFIG      "configuration error"]})
 
 (defn error [code]
   (let [[e message] (errors code)]
@@ -51,3 +50,4 @@
     (.close smtp)
     (.waitFor p)
     (error (.exitValue p))))
+

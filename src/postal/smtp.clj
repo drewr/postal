@@ -1,14 +1,16 @@
 (ns postal.smtp
-  (:use [postal.message :only [make-jmessage make-props]])
+  (:use [postal.message :only [make-jmessage make-props]]
+        [postal.support :only [make-props]])
   (:import [javax.mail Transport Session]))
 
 (defn smtp-send
   ([msg]
      (let [jmsg (make-jmessage msg)]
-       (try (Transport/send jmsg)
-            {:code 0 :error :SUCCESS :message "message sent"}
-            (catch Exception e
-              {:code 99 :error (class e) :message (.getMessage e)}))))
+       (try
+         (Transport/send jmsg)
+         {:code 0 :error :SUCCESS :message "message sent"}
+         (catch Exception e
+           {:code 99 :error (class e) :message (.getMessage e)}))))
   ([auth-map & msgs]
      (let [{:keys [host port user pass sender] :or {host "localhost"
                                                     port 25}}

@@ -1,7 +1,8 @@
 (ns postal.message
   (:use [clojure.set :only [difference]]
-        [postal.date :only [make-date]])
-  (:import [java.util Properties UUID]
+        [postal.date :only [make-date]]
+        [postal.support :only [do-when make-props]])
+  (:import [java.util UUID]
            [javax.mail Session Message$RecipientType]
            [javax.mail.internet MimeMessage InternetAddress
             AddressException]
@@ -71,26 +72,12 @@
     (doto jmsg (add-multipart! body))))
 
 (defn drop-keys [m ks]
-  (select-keys m (difference (set (keys m))
-                             (set ks))))
+  (select-keys m
+               (difference (set (keys m)) (set ks))))
 
 (defn make-auth [user pass]
   (proxy [javax.mail.Authenticator] []
     (getPasswordAuthentication [] (PasswordAuthentication. user pass))))
-
-(defmacro do-when
-  [arg condition & body]
-  `(when ~condition
-     (doto ~arg ~@body)))
-
-(defn make-props [sender {:keys [host port user ssl]}]
-  (doto (java.util.Properties.)
-    (.put "mail.smtp.host" (or host "not.provided"))
-    (.put "mail.smtp.port" (or port "25"))
-    (.put "mail.smtp.auth" (if user "true" "false"))
-    (do-when sender (.put "mail.smtp.from" sender))
-    (do-when user (.put "mail.smtp.user" user))
-    (do-when ssl  (.put "mail.smtp.starttls.enable" "true"))))
 
 (defn make-jmessage
   ([msg]
