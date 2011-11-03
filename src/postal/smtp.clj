@@ -1,5 +1,5 @@
 (ns postal.smtp
-  (:use [postal.message :only [make-jmessage make-props]]
+  (:use [postal.message :only [make-jmessage]]
         [postal.support :only [make-props]])
   (:import [javax.mail Transport Session]))
 
