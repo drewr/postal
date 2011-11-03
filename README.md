@@ -114,6 +114,7 @@ André Branco
 Joe Gallo    
 Jeff Palmucci    
 Paul Stadig    
+Sam Ritchie
 
 ## License
 
