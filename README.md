@@ -54,14 +54,16 @@ Authenticate to SMTP server with `:user` and `:pass`.
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core> 
 
-You probably do not want to do this in the clear, so add `:ssl :y` to
-get an encrypted connection.  This will default to port `465` if you
-don't specify one.  If your destination supports TLS instead, you can
-use `:tls :y`.  This will default to port `25`, however, so if you
-need a different one make sure you supply `:port`.  It's common for
-ISPs to block outgoing port 25 to relays that aren't theirs.  Gmail
-supports SSL & TLS but it's easiest to just use SSL since you'll
-likely need port 465 anyway.
+You probably do not want to do this in the clear, so add `:ssl` to get
+an encrypted connection.  This will default to port `465` if you don't
+specify one.
+
+If your destination supports TLS instead, you can use `:tls`.  This
+will default to port `25`, however, so if you need a different one
+make sure you supply `:port`.  (It's common for ISPs to block outgoing
+port 25 to relays that aren't theirs.  Gmail supports SSL & TLS but
+it's easiest to just use SSL since you'll likely need port 465
+anyway.)
 
     postal.core> (send-message #^{:host "smtp.gmail.com"
                                   :user "jsmith"
