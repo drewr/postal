@@ -1,7 +1,8 @@
 (ns postal.message
   (:use [clojure.set :only [difference]]
-        [postal.date :only [make-date]])
-  (:import [java.util Properties UUID]
+        [postal.date :only [make-date]]
+        [postal.support :only [do-when make-props]])
+  (:import [java.util UUID]
            [javax.mail Session Message$RecipientType]
            [javax.mail.internet MimeMessage InternetAddress
             AddressException]
@@ -16,10 +17,13 @@
 (defn sender [msg]
   (or (:sender msg) (:from msg)))
 
-(defn make-address [addr]
-  (try
-    (InternetAddress. addr)
-    (catch Exception _)))
+(defn make-address
+  ([addr]
+     (try (InternetAddress. addr)
+          (catch Exception _)))
+  ([addr name-str]
+     (try (InternetAddress. addr name-str)
+          (catch Exception _))))
 
 (defn message->str [msg]
   (with-open [out (java.io.ByteArrayOutputStream.)]
@@ -78,12 +82,8 @@
 (defn make-jmessage
   ([msg]
      (let [{:keys [sender from]} msg
-           {:keys [host port user pass]} (meta msg)
-           props (doto (java.util.Properties.)
-                   (.put "mail.smtp.host" (or host "not.provided"))
-                   (.put "mail.smtp.port" (or port "25"))
-                   (.put "mail.smtp.from" (or sender from))
-                   (.put "mail.smtp.auth" (if user "true" "false")))
+           {:keys [user pass]} (meta msg)
+           props (make-props (or sender from) (meta msg))
            session (or (:session (meta msg))
                        (if user
                          (Session/getInstance props (make-auth user pass))
@@ -96,7 +96,9 @@
          (add-recipients! Message$RecipientType/TO (:to msg))
          (add-recipients! Message$RecipientType/CC (:cc msg))
          (add-recipients! Message$RecipientType/BCC (:bcc msg))
-         (.setFrom (make-address (:from msg)))
+         (.setFrom (if-let [sender (:sender msg)]
+                     (make-address (:from msg) sender)
+                     (make-address (:from msg))))
          (.setSubject (:subject msg))
          (.setSentDate (or (:date msg) (make-date)))
          (add-extra! (drop-keys msg standard))
