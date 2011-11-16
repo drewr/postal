@@ -17,6 +17,14 @@ SSL.
 
 * JavaMail 1.4.2 (in `lib/` after build)
 
+### Install
+
+Served by Clojars.  In your project.clj:
+
+    [com.draines/postal "1.7-SNAPSHOT"]
+
+Likewise substitute any tag, like `1.6.0` etc.
+
 ### Examples
 
 At a bare minimum, provide a map with `:from`, `:to`, `:subject`, and `:body`.
