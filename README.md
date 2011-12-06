@@ -10,7 +10,8 @@ SSL.
 
 ### Platforms
 
-* Any Unix platform that supports Java and sendmail (`msmtp`, et al.)
+* Anything that can run Java should work
+* sendmail support likely requires *nix, but `msmtp`, et al., are worthy substitutes
 * Untested on Windows
 
 ### Dependencies
