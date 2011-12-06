@@ -4,13 +4,15 @@
         [postal.stress :only [spam]]))
 
 (defn send-message
-  [{:keys [from to subject body] :as msg}]
-  (when-not (and from to subject body)
-    (throw (Exception.
-            "message needs at least :from, :to, :subject, and :body")))
-  (if (:host (meta msg))
-    (smtp-send (meta msg) msg)
-    (sendmail-send msg)))
+  ([{:keys [host] :as server}
+    {:keys [from to subject body] :or {to "" subject ""} :as msg}]
+     (when-not (and from to)
+       (throw (Exception. "message needs at least :from and :to")))
+     (if host
+       (smtp-send server msg)
+       (sendmail-send msg)))
+  ([msg]
+     (send-message (meta msg) msg)))
 
 (defn stress [profile]
   (let [defaults #^{:host "localhost"
