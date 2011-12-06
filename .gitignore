@@ -5,3 +5,5 @@
 /classes
 *.jar
 pom.xml
+/.lein-deps-sum
+/.lein-failures
