@@ -18,8 +18,8 @@
                     :num 1
                     :delay 100
                     :threads 1}
-                  {:from "foo@lolz.dom"
-                   :to "bar@lolz.dom"}
+        {:from "foo@lolz.dom"
+         :to "bar@lolz.dom"}
         {:keys [host port from to num delay threads]}
         (merge (meta defaults) defaults (meta profile) profile)]
     (println (format "sent %s msgs to %s:%s"

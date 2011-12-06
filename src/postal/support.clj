@@ -14,5 +14,3 @@
     (do-when sender (.put "mail.smtp.from" sender))
     (do-when user (.put "mail.smtp.user" user))
     (do-when tls  (.put "mail.smtp.starttls.enable" "true"))))
-
-

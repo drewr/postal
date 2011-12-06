@@ -3,4 +3,3 @@
         [postal.sendmail :only [sendmail-send]]
         [postal.smtp :only [smtp-send]]
         [postal.stress :only [spam]]))
-
