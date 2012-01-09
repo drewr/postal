@@ -17,7 +17,8 @@
                    sender ssl] :or {host "localhost"}}
            auth-map
            port (if (not port)
-                  (if ssl 465 25))
+                  (if ssl 465 25)
+                  port)
            protocol (if ssl "smtps" "smtp")
            session (doto (Session/getInstance (make-props sender auth-map))
                      (.setDebug false))]
