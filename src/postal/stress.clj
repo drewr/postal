@@ -55,9 +55,9 @@
      (let [latch (CountDownLatch. threads)
            res (doall
                 (map #(future
-                       (let [ct (spam host port from to % delay)]
-                         (.countDown latch)
-                         ct))
+                        (let [ct (spam host port from to % delay)]
+                          (.countDown latch)
+                          ct))
                      (partition-work n threads)))]
        (.await latch)
        (reduce #(+ %1 (deref %2)) 0 res))))

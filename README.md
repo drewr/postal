@@ -28,16 +28,18 @@ Likewise substitute any tag, like `1.6.0` etc.
 
 ### Examples
 
-At a bare minimum, provide a map with `:from`, `:to`, `:subject`, and `:body`.
-This will locally inject the message into sendmail.
+At a bare minimum, provide a map with `:from` and `:to` (and you'll
+probably also be wanting `:subject` and `:body`, though they're
+technically optional).  This will locally inject the message into
+sendmail.
 
     user> (in-ns 'postal.core)
     #<Namespace postal.core>
     postal.core> (send-message {:from "me@draines.com"
-                                            :to ["mom@example.com" "dad@example.com"]
-                                            :cc "bob@example.com"
-                                            :subject "Hi!"
-                                            :body "Test."})
+                                :to ["mom@example.com" "dad@example.com"]
+                                :cc "bob@example.com"
+                                :subject "Hi!"
+                                :body "Test."})
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core> 
 
@@ -93,7 +95,7 @@ Attachments and multipart messages can be added as sequences of maps:
                                 :subject "Hi!"
                                 :body [{:type "text/html"
                                         :content "<b>Test!</b>"}
-                                    ;;;; supports both dispositions:
+                                       ;;;; supports both dispositions:
                                        {:type :attachment
                                         :content (java.io.File. "/tmp/foo.txt")}
                                        {:type :inline
@@ -113,11 +115,9 @@ You can stress-test a server by:
     nil
     postal.core>
 
-
 ### Building
 
     % lein deps && lein jar
-
 
 ## Contributors
 
