@@ -100,6 +100,27 @@ Attachments and multipart messages can be added as sequences of maps:
                                         :content (java.io.File. "/tmp/foo.txt")}]})
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core>
+    
+If you want another multipart type than "mixed", you can specify it as a keyword
+as the first value in the map sequence. That way you can for example create an 
+HTML-Email that displays a text message as fallback in email clients that do not
+support (or suppress) HTML-mails:
+    
+    postal.core> (send-message #^{:host "localhost"
+                                  :port 2500
+                                  :user "user@localhost"
+                                  :pass "somePassword"}
+                           {:from "jon-doe@example.com"
+                            :to "jane-doe@example.com"
+                            :subject "multipart/alternative test"
+                            :body [:alternative
+                                   {:type "text/plain"
+                                    :content "This is a test."}
+                                   {:type "text/html"
+                                    :content "<html><head> </head><body>
+                                    <h1>Heading 1</h1><p>This is a test.</p>
+                                    </body></html>"}
+                                  ]}))
 
 You can stress-test a server by:
 
