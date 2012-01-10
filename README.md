@@ -144,6 +144,7 @@ You can stress-test a server by:
 
 André Branco    
 Joe Gallo    
+Christoph Henkelmann    
 Jeff Palmucci    
 Paul Stadig    
 Sam Ritchie
