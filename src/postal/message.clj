@@ -46,13 +46,13 @@
   jmsg)
 
 (defn add-multipart! [jmsg parts]
-  (let [;multiparts can have a number of different types: mixed, 
-        ;alternative, encrypted...
-        ;The caller can use the first two entries to specify a type.
-        ;If no type is given, we default to "mixed" (for attachments etc.)
-        [multiPartType, parts] (if (keyword? (first parts)) 
-                                   [(name (first parts)) (rest parts)] 
-                                   ["mixed" parts])
+  (let [;; multiparts can have a number of different types: mixed,
+        ;; alternative, encrypted...
+        ;; The caller can use the first two entries to specify a type.
+        ;; If no type is given, we default to "mixed" (for attachments etc.)
+        [multiPartType, parts] (if (keyword? (first parts))
+                                 [(name (first parts)) (rest parts)]
+                                 ["mixed" parts])
         mp (javax.mail.internet.MimeMultipart. multiPartType)
         fileize (fn [x]
                   (if (instance? java.io.File x) x (java.io.File. x)))]
