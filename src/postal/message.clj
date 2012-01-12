@@ -25,6 +25,11 @@
      (try (InternetAddress. addr name-str)
           (catch Exception _))))
 
+(defn make-addresses [addresses]
+  (if (string? addresses)
+    (recur [addresses])
+    (into-array InternetAddress (map make-address addresses))))
+
 (defn message->str [msg]
   (with-open [out (java.io.ByteArrayOutputStream.)]
     (let [jmsg (if (instance? MimeMessage msg) msg (make-jmessage msg))]
@@ -97,7 +102,7 @@
                          (Session/getInstance props)))]
        (make-jmessage msg session)))
   ([msg session]
-     (let [standard [:from :to :cc :bcc :date :subject :body]
+     (let [standard [:from :reply-to :to :cc :bcc :date :subject :body]
            jmsg (MimeMessage. session)]
        (doto jmsg
          (add-recipients! Message$RecipientType/TO (:to msg))
@@ -106,6 +111,8 @@
          (.setFrom (if-let [sender (:sender msg)]
                      (make-address (:from msg) sender)
                      (make-address (:from msg))))
+         (.setReplyTo (when-let [reply-to (:reply-to msg)]
+                        (make-addresses reply-to)))
          (.setSubject (:subject msg))
          (.setSentDate (or (:date msg) (make-date)))
          (add-extra! (drop-keys msg standard))
