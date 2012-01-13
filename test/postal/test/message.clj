@@ -76,3 +76,11 @@
            :body "Bad recipient!"}]
     (is (not (re-find #"badddz" (message->str m))))
     (is (not (re-find #"foo @bar" (message->str m))))))
+
+(deftest test-reply-to
+  (let [m {:from "foo@bar.dom"
+           :to "baz@bar.dom"
+           :subject "Test"
+           :body "Reply me!"
+           :reply-to "yermom@bar.dom"}]
+    (is (re-find #"Reply-To: yermom" (message->str m)))))
