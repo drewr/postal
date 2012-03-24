@@ -50,7 +50,31 @@
         (add-recipient! jmsg rtype addr))))
   jmsg)
 
-(defn add-multipart! [jmsg parts]
+(defn- fileize [x]
+  (if (instance? java.io.File x) x (java.io.File. x)))
+
+(declare eval-bodypart eval-multipart)
+
+(defprotocol PartEval (eval-part [part]))
+
+(extend-protocol PartEval
+  clojure.lang.IPersistentMap
+  (eval-part [part] (eval-bodypart part))
+  clojure.lang.IPersistentCollection
+  (eval-part [part]
+    (doto (javax.mail.internet.MimeBodyPart.)
+      (.setContent (eval-multipart part)))))
+
+(defn eval-bodypart [part]
+  (condp (fn [test type] (some #(= % type) test)) (:type part)
+    [:inline :attachment]
+    (doto (javax.mail.internet.MimeBodyPart.)
+      (.attachFile (fileize (:content part)))
+      (.setDisposition (name (:type part))))
+    (doto (javax.mail.internet.MimeBodyPart.)
+      (.setContent (:content part) (:type part)))))
+
+(defn eval-multipart [parts]
   (let [;; multiparts can have a number of different types: mixed,
         ;; alternative, encrypted...
         ;; The caller can use the first two entries to specify a type.
@@ -58,20 +82,13 @@
         [multiPartType, parts] (if (keyword? (first parts))
                                  [(name (first parts)) (rest parts)]
                                  ["mixed" parts])
-        mp (javax.mail.internet.MimeMultipart. multiPartType)
-        fileize (fn [x]
-                  (if (instance? java.io.File x) x (java.io.File. x)))]
+        mp (javax.mail.internet.MimeMultipart. multiPartType)]
     (doseq [part parts]
-      (condp (fn [test type] (some #(= % type) test)) (:type part)
-        [:inline :attachment]
-        (.addBodyPart mp
-                      (doto (javax.mail.internet.MimeBodyPart.)
-                        (.attachFile (fileize (:content part)))
-                        (.setDisposition (name (:type part)))))
-        (.addBodyPart mp
-                      (doto (javax.mail.internet.MimeBodyPart.)
-                        (.setContent (:content part) (:type part))))))
-    (.setContent jmsg mp)))
+      (.addBodyPart mp (eval-part part))) 
+    mp))
+
+(defn add-multipart! [jmsg parts]
+    (.setContent jmsg (eval-multipart parts)))
 
 (defn add-extra! [jmsg msgrest]
   (doseq [[n v] msgrest]
