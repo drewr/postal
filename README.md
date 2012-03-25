@@ -22,7 +22,7 @@ SSL.
 
 Served by Clojars.  In your project.clj:
 
-    [com.draines/postal "1.7-SNAPSHOT"]
+    [com.draines/postal "1.7.1"]
 
 Likewise substitute any tag, like `1.6.0` etc.
 
