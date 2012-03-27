@@ -55,6 +55,32 @@
     (is (= "tempfile" (re-find #"tempfile" (message->str m))))
     (.delete f1)))
 
+(deftest test-nested
+  (let [f (doto (java.io.File/createTempFile "_postal-" ".txt"))
+        _ (doto (java.io.PrintWriter. f)
+            (.println "tempfile contents") (.close))
+        m {:from "foo@bar.dom"
+           :to "baz@bar.dom"
+           :subject "Test"
+           :body [[:alternative
+                   {:type "text/html"
+                    :content "<b>some html</b>"}
+                   {:type "text/plain"
+                    :content "some text"}]
+                  {:type :attachment
+                   :content f}]}]
+    (is (= "multipart/mixed" (re-find #"multipart/mixed" (message->str m))))
+    (is (= "multipart/alternative"
+           (re-find #"multipart/alternative" (message->str m))))
+    (is (= "Content-Type: text/html"
+           (re-find #"Content-Type: text/html" (message->str m))))
+    (is (= "some html" (re-find #"some html" (message->str m))))
+    (is (= "Content-Type: text/plain"
+           (re-find #"Content-Type: text/plain" (message->str m))))
+    (is (= "some text" (re-find #"some text" (message->str m))))
+    (is (= "tempfile" (re-find #"tempfile" (message->str m))))
+    (.delete f)))
+
 (deftest test-fixture
   (let [from "foo@bar.dom"
         to "baz@bar.dom"
