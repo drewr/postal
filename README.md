@@ -45,7 +45,7 @@ sendmail.
 
 To use SMTP, add metadata with a `:host` key.
 
-    postal.core> (send-message #^{:host "mail.isp.net"}
+    postal.core> (send-message ^{:host "mail.isp.net"}
                                {:from "me@draines.com"
                                 :to "foo@example.com"
                                 :subject "Hi!"
@@ -55,9 +55,9 @@ To use SMTP, add metadata with a `:host` key.
 
 Authenticate to SMTP server with `:user` and `:pass`.
 
-    postal.core> (send-message #^{:host "mail.isp.net"
-                                  :user "jsmith"
-                                  :pass "sekrat!!1"}
+    postal.core> (send-message ^{:host "mail.isp.net"
+                                 :user "jsmith"
+                                 :pass "sekrat!!1"}
                                {:from "me@draines.com"
                                 :to "foo@example.com"
                                 :subject "Hi!"
@@ -76,10 +76,10 @@ port 25 to relays that aren't theirs.  Gmail supports SSL & TLS but
 it's easiest to just use SSL since you'll likely need port 465
 anyway.)
 
-    postal.core> (send-message #^{:host "smtp.gmail.com"
-                                  :user "jsmith"
-                                  :pass "sekrat!!1"
-                                  :ssl :yes!!!11}
+    postal.core> (send-message ^{:host "smtp.gmail.com"
+                                 :user "jsmith"
+                                 :pass "sekrat!!1"
+                                 :ssl :yes!!!11}
                                {:from "me@draines.com"
                                 :to "foo@example.com"
                                 :subject "Hi!"
@@ -89,7 +89,7 @@ anyway.)
 
 Attachments and multipart messages can be added as sequences of maps:
 
-    postal.core> (send-message #^{:host "mail.isp.net"}
+    postal.core> (send-message ^{:host "mail.isp.net"}
                                {:from "me@draines.com"
                                 :to "foo@example.com"
                                 :subject "Hi!"
@@ -108,10 +108,10 @@ as the first value in the map sequence. That way you can for example create an
 HTML-Email that displays a text message as fallback in email clients that do not
 support (or suppress) HTML-mails:
     
-    postal.core> (send-message #^{:host "localhost"
-                                  :port 2500
-                                  :user "user@localhost"
-                                  :pass "somePassword"}
+    postal.core> (send-message ^{:host "localhost"
+                                 :port 2500
+                                 :user "user@localhost"
+                                 :pass "somePassword"}
                            {:from "jon-doe@example.com"
                             :to "jane-doe@example.com"
                             :subject "multipart/alternative test"
@@ -126,10 +126,10 @@ support (or suppress) HTML-mails:
 
 You can stress-test a server by:
 
-    postal.core> (stress #^{:host "localhost"
-                            :num     1000
-                            :delay   250   ;; msecs
-                            :threads 5     ;; concurrent connections}
+    postal.core> (stress ^{:host "localhost"
+                           :num     1000
+                           :delay   250   ;; msecs
+                           :threads 5     ;; concurrent connections}
                          {:from "foo@lolz.dom"
                           :to "bar@lolz.dom"})
     sent 1000 msgs to localhost:25
