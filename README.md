@@ -52,7 +52,17 @@ To use SMTP, add metadata with a `:host` key.
                                 :body "Test."})
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core> 
+    
+Or as the first function argument:
 
+    postal.core> (send-message {:host "mail.isp.net"}
+                               {:from "me@draines.com"
+                                :to "foo@example.com"
+                                :subject "Hi!"
+                                :body "Test."})
+    {:code 0, :error :SUCCESS, :message "message sent"}
+    postal.core> 
+    
 Authenticate to SMTP server with `:user` and `:pass`.
 
     postal.core> (send-message ^{:host "mail.isp.net"
