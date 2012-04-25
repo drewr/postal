@@ -68,9 +68,13 @@
 (defn eval-bodypart [part]
   (condp (fn [test type] (some #(= % type) test)) (:type part)
     [:inline :attachment]
-    (doto (javax.mail.internet.MimeBodyPart.)
-      (.attachFile (fileize (:content part)))
-      (.setDisposition (name (:type part))))
+    (let [attachment-part (doto (javax.mail.internet.MimeBodyPart.)
+                            (.attachFile (fileize (:content part)))
+                            (.setDisposition (name (:type part))))]
+      
+      (when (:content-type part)
+        (.setHeader attachment-part "Content-Type" (:content-type part)))
+      attachment-part)
     (doto (javax.mail.internet.MimeBodyPart.)
       (.setContent (:content part) (:type part)))))
 
