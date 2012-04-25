@@ -103,8 +103,9 @@ Attachments and multipart messages can be added as sequences of maps:
                                         :content-type "application/pdf"}]})
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core>
+
 If your attachment has a content-type that is not recognized by JavaMail, e.g.,
-pdf/doc, you can set the content-type explicitly using :content-type.
+`.pdf` or `.doc`, you can set `:content-type`.
     
 If you want another multipart type than "mixed", you can specify it as a keyword
 as the first value in the map sequence. That way you can for example create an 
@@ -148,6 +149,7 @@ You can stress-test a server by:
 André Branco    
 Joe Gallo    
 Christoph Henkelmann    
+Gerrit Hentschel     
 Jeff Palmucci    
 Paul Stadig    
 Sam Ritchie
