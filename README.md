@@ -1,9 +1,9 @@
-Postal
+postal
 =======
 
 #### Internet email library for Clojure
 
-Postal is a library for constructing and sending RFC822-compliant
+postal is a library for constructing and sending RFC822-compliant
 Internet email messages.  It wraps the JavaMail package for message
 and SMTP support.  It supports sendmail natively.  Supports STARTTLS &
 SSL.
