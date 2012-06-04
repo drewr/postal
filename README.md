@@ -140,6 +140,19 @@ You can stress-test a server by:
     nil
     postal.core>
 
+Since Amazon SES uses authenticated SMTP, postal can use it.  Just
+make sure you use a verified address and your SMTP credentials (visit
+the AWS Console to set those up).  Also, if you're just sandboxing,
+you can only send *to* a verified address as well.  Example:
+
+    postal.core> (send-message ^{:user "AKIAIDTP........" :pass "AikCFhx1P......."
+                                 :host "email-smtp.us-east-1.amazonaws.com"
+                                 :port 587}
+                   {:from "me@draines.com" :to "me@draines.com"
+                    :subject "Test from Amazon SES" :body "Test!!!11"})
+    {:error :SUCCESS, :code 0, :message "messages sent"}
+    postal.core> 
+
 ### Building
 
     % lein deps && lein jar
