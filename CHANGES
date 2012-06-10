@@ -1,0 +1,11 @@
+1.8.0
+
+* Add nested multipart support.
+* Allow explicit content-type.
+
+1.7.2
+
+* Remove dependency on org.clojure.contrib/repl-utils 1.3.0-alpha4.
+
+
+
