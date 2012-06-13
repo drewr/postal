@@ -45,7 +45,7 @@ sendmail.
                                 :body "Test."
                                 :X-Tra "Something else"})
     {:code 0, :error :SUCCESS, :message "message sent"}
-    postal.core> 
+    postal.core>
 
 #### SMTP
 
@@ -57,7 +57,7 @@ To use SMTP, add metadata with a `:host` key.
                                 :subject "Hi!"
                                 :body "Test."})
     {:code 0, :error :SUCCESS, :message "message sent"}
-    postal.core> 
+    postal.core>
 
 #### Authentication
 
@@ -71,7 +71,7 @@ Authenticate to SMTP server with `:user` and `:pass`.
                                 :subject "Hi!"
                                 :body "Test."})
     {:code 0, :error :SUCCESS, :message "message sent"}
-    postal.core> 
+    postal.core>
 
 #### Encryption (Gmail example)
 
@@ -95,7 +95,7 @@ anyway.)
                                 :subject "Hi!"
                                 :body "Test."})
     {:code 0, :error :SUCCESS, :message "message sent"}
-    postal.core> 
+    postal.core>
 
 #### Amazon
 
@@ -110,7 +110,7 @@ you can only send *to* a verified address as well.  Example:
                    {:from "me@draines.com" :to "me@draines.com"
                     :subject "Test from Amazon SES" :body "Test!!!11"})
     {:error :SUCCESS, :code 0, :message "messages sent"}
-    postal.core> 
+    postal.core>
 
 #### Attachments
 
@@ -133,12 +133,12 @@ Attachments and multipart messages can be added as sequences of maps:
 
 If your attachment has a content-type that is not recognized by JavaMail, e.g.,
 `.pdf` or `.doc`, you can set `:content-type`.
-    
+
 If you want another multipart type than "mixed", you can specify it as a keyword
-as the first value in the map sequence. That way you can for example create an 
+as the first value in the map sequence. That way you can for example create an
 HTML-Email that displays a text message as fallback in email clients that do not
 support (or suppress) HTML-mails:
-    
+
     postal.core> (send-message ^{:host "localhost"
                                  :port 2500
                                  :user "user@localhost"
@@ -154,6 +154,11 @@ support (or suppress) HTML-mails:
                                     <h1>Heading 1</h1><p>This is a test.</p>
                                     </body></html>"}
                                   ]}))
+
+#### UTF-8
+
+Postal uses JavaMail under the covers, which defaults to charset
+"us-ascii". To set the charset, set the :type, like "text/html; charset=utf-8"
 
 #### Stress-testing
 
@@ -175,12 +180,12 @@ You can stress-test a server by:
 
 ## Contributors
 
-André Branco    
-Joe Gallo    
-Christoph Henkelmann    
-Gerrit Hentschel     
-Jeff Palmucci    
-Paul Stadig    
+André Branco
+Joe Gallo
+Christoph Henkelmann
+Gerrit Hentschel
+Jeff Palmucci
+Paul Stadig
 Sam Ritchie
 
 ## License
