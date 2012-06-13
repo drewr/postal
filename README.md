@@ -30,7 +30,8 @@ Likewise substitute any tag, like `1.6.0` etc.
 
 At a bare minimum, provide a map with `:from` and `:to` (and you'll
 probably also be wanting `:subject` and `:body`, though they're
-technically optional).  This will locally inject the message into
+technically optional).  Any other keys you supply will show up as ancillary headers.  
+This example will locally inject the message into
 sendmail.
 
     user> (in-ns 'postal.core)
@@ -39,7 +40,8 @@ sendmail.
                                 :to ["mom@example.com" "dad@example.com"]
                                 :cc "bob@example.com"
                                 :subject "Hi!"
-                                :body "Test."})
+                                :body "Test."
+                                :X-Tra "Something else"})
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core> 
 
