@@ -28,10 +28,12 @@ Likewise substitute any tag, like `1.6.0` etc.
 
 ### Examples
 
+#### Local
+
 At a bare minimum, provide a map with `:from` and `:to` (and you'll
 probably also be wanting `:subject` and `:body`, though they're
-technically optional).  Any other keys you supply will show up as ancillary headers.  
-This example will locally inject the message into
+technically optional).  Any other keys you supply will show up as
+ancillary headers.  This example will locally inject the message into
 sendmail.
 
     user> (in-ns 'postal.core)
@@ -45,6 +47,8 @@ sendmail.
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core> 
 
+#### SMTP
+
 To use SMTP, add metadata with a `:host` key.
 
     postal.core> (send-message ^{:host "mail.isp.net"}
@@ -54,6 +58,8 @@ To use SMTP, add metadata with a `:host` key.
                                 :body "Test."})
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core> 
+
+#### Authentication
 
 Authenticate to SMTP server with `:user` and `:pass`.
 
@@ -66,6 +72,8 @@ Authenticate to SMTP server with `:user` and `:pass`.
                                 :body "Test."})
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core> 
+
+#### Encryption (Gmail example)
 
 You probably do not want to do this in the clear, so add `:ssl` to get
 an encrypted connection.  This will default to port `465` if you don't
@@ -88,6 +96,23 @@ anyway.)
                                 :body "Test."})
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core> 
+
+#### Amazon
+
+Since Amazon SES uses authenticated SMTP, postal can use it.  Just
+make sure you use a verified address and your SMTP credentials (visit
+the AWS Console to set those up).  Also, if you're just sandboxing,
+you can only send *to* a verified address as well.  Example:
+
+    postal.core> (send-message ^{:user "AKIAIDTP........" :pass "AikCFhx1P......."
+                                 :host "email-smtp.us-east-1.amazonaws.com"
+                                 :port 587}
+                   {:from "me@draines.com" :to "me@draines.com"
+                    :subject "Test from Amazon SES" :body "Test!!!11"})
+    {:error :SUCCESS, :code 0, :message "messages sent"}
+    postal.core> 
+
+#### Attachments
 
 Attachments and multipart messages can be added as sequences of maps:
 
@@ -130,6 +155,8 @@ support (or suppress) HTML-mails:
                                     </body></html>"}
                                   ]}))
 
+#### Stress-testing
+
 You can stress-test a server by:
 
     postal.core> (stress ^{:host "localhost"
@@ -141,19 +168,6 @@ You can stress-test a server by:
     sent 1000 msgs to localhost:25
     nil
     postal.core>
-
-Since Amazon SES uses authenticated SMTP, postal can use it.  Just
-make sure you use a verified address and your SMTP credentials (visit
-the AWS Console to set those up).  Also, if you're just sandboxing,
-you can only send *to* a verified address as well.  Example:
-
-    postal.core> (send-message ^{:user "AKIAIDTP........" :pass "AikCFhx1P......."
-                                 :host "email-smtp.us-east-1.amazonaws.com"
-                                 :port 587}
-                   {:from "me@draines.com" :to "me@draines.com"
-                    :subject "Test from Amazon SES" :body "Test!!!11"})
-    {:error :SUCCESS, :code 0, :message "messages sent"}
-    postal.core> 
 
 ### Building
 
