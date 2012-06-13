@@ -158,7 +158,7 @@ support (or suppress) HTML-mails:
 #### UTF-8
 
 Postal uses JavaMail under the covers, which defaults to charset
-"us-ascii". To set the charset, set the :type, like `"text/html; charset=utf-8"`
+`us-ascii`. To set the charset, set the `:type`, like `"text/html; charset=utf-8"`
 
 #### Stress-testing
 
