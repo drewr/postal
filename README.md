@@ -158,7 +158,7 @@ support (or suppress) HTML-mails:
 #### UTF-8
 
 Postal uses JavaMail under the covers, which defaults to charset
-`us-ascii`. To set the charset, set the `:type`, like `"text/html; charset=utf-8"`
+`us-ascii`. To set the charset, set the `:type`, like `"text/html; charset=utf-8"`.
 
 #### Stress-testing
 
@@ -180,13 +180,13 @@ You can stress-test a server by:
 
 ## Contributors
 
-André Branco
-Joe Gallo
-Christoph Henkelmann
-Gerrit Hentschel
-Jeff Palmucci
-Paul Stadig
-Sam Ritchie
+André Branco      
+Joe Gallo      
+Christoph Henkelmann       
+Gerrit Hentschel        
+Jeff Palmucci         
+Paul Stadig       
+Sam Ritchie      
 
 ## License
 
