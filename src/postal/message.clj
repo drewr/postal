@@ -9,6 +9,8 @@
             AddressException]
            [javax.mail PasswordAuthentication]))
 
+(def default-charset "utf-8")
+
 (declare make-jmessage)
 
 (defn recipients [msg]
@@ -97,9 +99,9 @@
     (.addHeader jmsg (if (keyword? n) (name n) n) v))
   jmsg)
 
-(defn add-body! [jmsg body]
+(defn add-body! [jmsg body charset]
   (if (string? body)
-    (doto jmsg (.setText body))
+    (doto jmsg (.setText body charset))
     (doto jmsg (add-multipart! body))))
 
 (defn drop-keys [m ks]
@@ -135,7 +137,7 @@
          (.setSubject (:subject msg))
          (.setSentDate (or (:date msg) (make-date)))
          (add-extra! (drop-keys msg standard))
-         (add-body! (:body msg))))))
+         (add-body! (:body msg) (or (:charset msg) default-charset))))))
 
 (defn make-fixture [from to & {:keys [tag]}]
   (let [uuid (str (UUID/randomUUID))

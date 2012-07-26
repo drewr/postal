@@ -13,9 +13,11 @@
            :cc ["baz@bar.dom" "Quux <quux@bar.dom>"]
            :date (java.util.Date.)
            :subject "Test"
-           :body "Test!"}]
+           :body "Test!"
+           :charset "us-ascii"}]
     (is (= "Subject: Test" (re-find #"Subject: Test" (message->str m))))
-    (is (re-find #"Cc: baz@bar.dom, Quux <quux@bar.dom>" (message->str m)))))
+    (is (re-find #"Cc: baz@bar.dom, Quux <quux@bar.dom>" (message->str m)))
+    (is (re-find #"(?i)content-type:.*us-ascii" (message->str m)))))
 
 (deftest test-multipart
   (let [m {:from "foo@bar.dom"
