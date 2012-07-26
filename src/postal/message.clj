@@ -21,17 +21,22 @@
   (or (:sender msg) (:from msg)))
 
 (defn make-address
-  ([addr]
-     (try (InternetAddress. addr)
-          (catch Exception _)))
-  ([addr name-str]
-     (try (InternetAddress. addr name-str)
+  ([addr charset]
+     (let [a (try (InternetAddress. addr)
+                  (catch Exception _))]
+       (if a
+         (InternetAddress. (.getAddress a)
+                           (.getPersonal a)
+                           charset))))
+  ([addr name-str charset]
+     (try (InternetAddress. addr name-str charset)
           (catch Exception _))))
 
-(defn make-addresses [addresses]
+(defn make-addresses [addresses charset]
   (if (string? addresses)
-    (recur [addresses])
-    (into-array InternetAddress (map make-address addresses))))
+    (recur [addresses] charset)
+    (into-array InternetAddress (map #(make-address % charset)
+                                     addresses))))
 
 (defn message->str [msg]
   (with-open [out (java.io.ByteArrayOutputStream.)]
@@ -39,18 +44,18 @@
       (.writeTo jmsg out)
       (str out))))
 
-(defn add-recipient! [jmsg rtype addr]
-  (if-let [addr (make-address addr)]
+(defn add-recipient! [jmsg rtype addr charset]
+  (if-let [addr (make-address addr charset)]
     (doto jmsg
       (.addRecipient rtype addr))
     jmsg))
 
-(defn add-recipients! [jmsg rtype addrs]
+(defn add-recipients! [jmsg rtype addrs charset]
   (when addrs
     (if (string? addrs)
-      (add-recipient! jmsg rtype addrs)
+      (add-recipient! jmsg rtype addrs charset)
       (doseq [addr addrs]
-        (add-recipient! jmsg rtype addr))))
+        (add-recipient! jmsg rtype addr charset))))
   jmsg)
 
 (declare eval-bodypart eval-multipart)
@@ -71,7 +76,7 @@
     (let [attachment-part (doto (javax.mail.internet.MimeBodyPart.)
                             (.attachFile (file (:content part)))
                             (.setDisposition (name (:type part))))]
-      
+
       (when (:content-type part)
         (.setHeader attachment-part "Content-Type" (:content-type part)))
       attachment-part)
@@ -88,11 +93,11 @@
                                  ["mixed" parts])
         mp (javax.mail.internet.MimeMultipart. multiPartType)]
     (doseq [part parts]
-      (.addBodyPart mp (eval-part part))) 
+      (.addBodyPart mp (eval-part part)))
     mp))
 
 (defn add-multipart! [jmsg parts]
-    (.setContent jmsg (eval-multipart parts)))
+  (.setContent jmsg (eval-multipart parts)))
 
 (defn add-extra! [jmsg msgrest]
   (doseq [[n v] msgrest]
@@ -124,20 +129,21 @@
        (make-jmessage msg session)))
   ([msg session]
      (let [standard [:from :reply-to :to :cc :bcc :date :subject :body]
+           charset (or (:charset msg) default-charset)
            jmsg (MimeMessage. session)]
        (doto jmsg
-         (add-recipients! Message$RecipientType/TO (:to msg))
-         (add-recipients! Message$RecipientType/CC (:cc msg))
-         (add-recipients! Message$RecipientType/BCC (:bcc msg))
+         (add-recipients! Message$RecipientType/TO (:to msg) charset)
+         (add-recipients! Message$RecipientType/CC (:cc msg) charset)
+         (add-recipients! Message$RecipientType/BCC (:bcc msg) charset)
          (.setFrom (if-let [sender (:sender msg)]
-                     (make-address (:from msg) sender)
-                     (make-address (:from msg))))
+                     (make-address sender charset)
+                     (make-address (:from msg) charset)))
          (.setReplyTo (when-let [reply-to (:reply-to msg)]
-                        (make-addresses reply-to)))
+                        (make-addresses reply-to charset)))
          (.setSubject (:subject msg))
          (.setSentDate (or (:date msg) (make-date)))
          (add-extra! (drop-keys msg standard))
-         (add-body! (:body msg) (or (:charset msg) default-charset))))))
+         (add-body! (:body msg) charset)))))
 
 (defn make-fixture [from to & {:keys [tag]}]
   (let [uuid (str (UUID/randomUUID))

@@ -112,3 +112,10 @@
            :body "Reply me!"
            :reply-to "yermom@bar.dom"}]
     (is (re-find #"Reply-To: yermom" (message->str m)))))
+
+(deftest test-charset-addrs
+  (let [m {:from "íč <p@p.com>"
+           :to "Böb <bob@bar.dom>"
+           :subject "Test"
+           :body "Reply me!"}]
+    (is (re-find #"=\?utf-8\?B\?w63EjQ==\?=" (message->str m)))))
