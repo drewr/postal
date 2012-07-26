@@ -1,5 +1,6 @@
 (ns postal.message
   (:use [clojure.set :only [difference]]
+        [clojure.java.io :only [file]]
         [postal.date :only [make-date]]
         [postal.support :only [do-when make-props]])
   (:import [java.util UUID]
@@ -50,9 +51,6 @@
         (add-recipient! jmsg rtype addr))))
   jmsg)
 
-(defn- fileize [x]
-  (if (instance? java.io.File x) x (java.io.File. x)))
-
 (declare eval-bodypart eval-multipart)
 
 (defprotocol PartEval (eval-part [part]))
@@ -69,7 +67,7 @@
   (condp (fn [test type] (some #(= % type) test)) (:type part)
     [:inline :attachment]
     (let [attachment-part (doto (javax.mail.internet.MimeBodyPart.)
-                            (.attachFile (fileize (:content part)))
+                            (.attachFile (file (:content part)))
                             (.setDisposition (name (:type part))))]
       
       (when (:content-type part)
