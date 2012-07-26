@@ -121,4 +121,14 @@
            :body "Charsets!"}]
     (is (.contains (message->str m) "=?utf-8?B?w63EjQ==?="))
     (is (.contains (message->str m) "=?utf-8?Q?B=C3=B6b?="))
+    (is (.contains (message->str m) "Plain Addr")))
+  (let [m {:from "íč <p@p.com>"
+           :to "Böb <bob@bar.dom>"
+           :cc ["Plain Addr <plain@bar.dom>"]
+           :subject "Test"
+           :charset "iso-8859-1"
+           :body "Charsets!"}]
+    (is (.contains (message->str m)
+                   "Content-Type: text/plain; charset=iso-8859-1"))
+    (is (.contains (message->str m) "=?iso-8859-1?B?7T8=?="))
     (is (.contains (message->str m) "Plain Addr"))))
