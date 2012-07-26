@@ -116,6 +116,9 @@
 (deftest test-charset-addrs
   (let [m {:from "íč <p@p.com>"
            :to "Böb <bob@bar.dom>"
+           :cc ["Plain Addr <plain@bar.dom>"]
            :subject "Test"
-           :body "Reply me!"}]
-    (is (re-find #"=\?utf-8\?B\?w63EjQ==\?=" (message->str m)))))
+           :body "Charsets!"}]
+    (is (.contains (message->str m) "=?utf-8?B?w63EjQ==?="))
+    (is (.contains (message->str m) "=?utf-8?Q?B=C3=B6b?="))
+    (is (.contains (message->str m) "Plain Addr"))))
