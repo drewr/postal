@@ -71,7 +71,7 @@
     (let [attachment-part (doto (javax.mail.internet.MimeBodyPart.)
                             (.attachFile (fileize (:content part)))
                             (.setDisposition (name (:type part))))]
-      
+
       (when (:content-type part)
         (.setHeader attachment-part "Content-Type" (:content-type part)))
       attachment-part)
@@ -88,11 +88,11 @@
                                  ["mixed" parts])
         mp (javax.mail.internet.MimeMultipart. multiPartType)]
     (doseq [part parts]
-      (.addBodyPart mp (eval-part part))) 
+      (.addBodyPart mp (eval-part part)))
     mp))
 
 (defn add-multipart! [jmsg parts]
-    (.setContent jmsg (eval-multipart parts)))
+  (.setContent jmsg (eval-multipart parts)))
 
 (defn add-extra! [jmsg msgrest]
   (doseq [[n v] msgrest]
