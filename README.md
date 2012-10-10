@@ -20,11 +20,11 @@ SSL.
 
 ### Install
 
-Served by Clojars.  In your project.clj:
+Served by Clojars.  In your Leiningen project.clj:
 
     [com.draines/postal "1.9.0"]
 
-Likewise substitute any tag, like `1.6.0` etc.
+Likewise substitute any tag name from git.
 
 ### Examples
 
