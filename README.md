@@ -160,6 +160,21 @@ support (or suppress) HTML-mails:
 Postal uses JavaMail under the covers, which defaults to charset
 `us-ascii`. To set the charset, set the `:type`, like `"text/html; charset=utf-8"`.
 
+#### Message ID
+
+Postal will supply a message ID by default that looks like
+`[random]@postal.[host]`.  You can customize this by supplying a
+`:message-id` header with a function that takes no args.  The included
+`postal.support/message-id` can be used if you'd like to make use of
+its randomness and only customize the hostname.
+
+    {:from "foo@bar.dom"
+     :to "baz@bar.dom"
+     :subject "Message IDs!"
+     :body "Regards."
+     :message-id #(postal.support/message-id "foo.bar.dom")}
+
+
 #### Stress-testing
 
 You can stress-test a server by:

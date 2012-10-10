@@ -122,3 +122,25 @@
             :body "Only Bcc!!"})]
     (is (.contains m "Bcc: baz"))
     (is (not (.contains m "To: ")))))
+
+(deftest test-message-id
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body "Where is that message ID!"})]
+    (is (re-find #"Message-ID:.*?@postal\." m)))
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body "Where is that message ID!"
+            :message-id #(postal.support/message-id "foo.bar.dom")})]
+    (is (.contains m "@foo.bar.dom")))
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body "Where is that message ID!"
+            :message-id (fn [] "foo")})]
+    (is (.contains m "Message-ID: foo"))))
