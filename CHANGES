@@ -1,3 +1,8 @@
+1.9.0
+
+* Support custom message ID.
+* Supply default, customizable user agent.
+
 1.8.0
 
 * Add nested multipart support.
