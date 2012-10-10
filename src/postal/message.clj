@@ -1,7 +1,7 @@
 (ns postal.message
   (:use [clojure.set :only [difference]]
         [postal.date :only [make-date]]
-        [postal.support :only [do-when make-props message-id]])
+        [postal.support :only [do-when make-props message-id user-agent]])
   (:import [java.util UUID]
            [javax.mail Session Message$RecipientType]
            [javax.mail.internet MimeMessage InternetAddress
@@ -124,7 +124,8 @@
        (make-jmessage msg session)))
   ([msg session]
      (let [standard [:from :reply-to :to :cc :bcc
-                     :date :subject :body :message-id]
+                     :date :subject :body :message-id
+                     :user-agent]
            jmsg (proxy [MimeMessage] [session]
                   (updateMessageID []
                     (.setHeader
@@ -141,6 +142,7 @@
                         (make-addresses reply-to)))
          (.setSubject (:subject msg))
          (.setSentDate (or (:date msg) (make-date)))
+         (.addHeader "User-Agent" (:user-agent msg (user-agent)))
          (add-extra! (drop-keys msg standard))
          (add-body! (:body msg))))))
 

@@ -174,6 +174,17 @@ its randomness and only customize the hostname.
      :body "Regards."
      :message-id #(postal.support/message-id "foo.bar.dom")}
 
+#### User Agent
+
+You can customize the default `User-Agent` header (by default
+`postal/VERSION`).
+
+    {:from "foo@bar.dom"
+     :to "baz@bar.dom"
+     :subject "Message IDs!"
+     :body "Regards."
+     :user-agent "MyMailer 1.0"}
+
 
 #### Stress-testing
 

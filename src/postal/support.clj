@@ -1,4 +1,5 @@
 (ns postal.support
+  (:require [clojure.java.io :as io])
   (:import (java.util Properties Random)
            (org.apache.commons.codec.binary Base64)))
 
@@ -30,3 +31,15 @@
            onlychars (apply str (re-seq #"[0-9A-Za-z]" rs))
            epoch (.getTime (java.util.Date.))]
        (format "%s.%s@%s" onlychars epoch host))))
+
+(defn pom-version []
+  (let [pom "META-INF/maven/com.draines/postal/pom.properties"
+        props (doto (Properties.)
+                (.load (-> pom io/resource io/input-stream)))]
+    (.getProperty props "version")))
+
+(defn user-agent []
+  (let [prop (Properties.)
+        ver (or (System/getProperty "postal.version")
+                (pom-version))]
+    (format "postal/%s" ver)))
