@@ -113,3 +113,12 @@
             :body "Reply me!"
             :reply-to "yermom@bar.dom"})]
     (is (.contains m "Reply-To: yermom"))))
+
+(deftest test-only-bcc
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :bcc "baz@bar.dom"
+            :subject "Test"
+            :body "Only Bcc!!"})]
+    (is (.contains m "Bcc: baz"))
+    (is (not (.contains m "To: ")))))
