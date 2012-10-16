@@ -152,7 +152,7 @@
             :to "baz@bar.dom"
             :subject "Test"
             :body "Where is that message ID!"})]
-    (is (re-find #"Message-ID:.*?@postal\." m)))
+    (is (re-find #"Message-ID: <.*?@postal\..*>" m)))
   (let [m (message->str
            {:from "foo@bar.dom"
             :to "baz@bar.dom"
