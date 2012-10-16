@@ -167,7 +167,8 @@
          (.setSentDate (or (:date msg) (make-date)))
          (.addHeader "User-Agent" (:user-agent msg (user-agent)))
          (add-extra! (drop-keys msg standard))
-         (add-body! (:body msg))))))
+         (add-body! (:body msg))
+         (.saveChanges)))))
 
 (defn make-fixture [from to & {:keys [tag]}]
   (let [uuid (str (UUID/randomUUID))

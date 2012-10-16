@@ -53,7 +53,7 @@
            rs (String. (Base64/encodeBase64 bs))
            onlychars (apply str (re-seq #"[0-9A-Za-z]" rs))
            epoch (.getTime (java.util.Date.))]
-       (format "%s.%s@%s" onlychars epoch host))))
+       (format "<%s.%s@%s>" onlychars epoch host))))
 
 (defn pom-version []
   (let [pom "META-INF/maven/com.draines/postal/pom.properties"
