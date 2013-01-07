@@ -97,6 +97,8 @@
 
       (when (:content-type part)
         (.setHeader attachment-part "Content-Type" (:content-type part)))
+      (when (:content-id part)
+        (.setContentID attachment-part (str "<" (:content-id part) ">")))
       attachment-part)
     (doto (javax.mail.internet.MimeBodyPart.)
       (.setContent (:content part) (:type part)))))
