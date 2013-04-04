@@ -81,6 +81,25 @@
     (is (.contains m "tempfile"))
     (.delete f1)))
 
+(deftest test-attachment-with-custom-name-and-description
+  (let [f1 (doto (java.io.File/createTempFile "_postal-" ".txt"))
+        _ (doto (java.io.PrintWriter. f1)
+            (.println "tempfile contents") (.close))
+        m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body [{:type "text/plain"
+                    :content "See attached"}
+                   {:type :attachment
+                    :file-name "ImportantDocumentA.txt"
+                    :description "A document that we should all marvel at"
+                    :content f1}]})]
+    (is (.contains m "tempfile"))
+    (is (.contains m "ImportantDocumentA.txt"))
+    (is (.contains m "A document that we should all marvel at"))
+    (.delete f1)))
+
 (deftest test-nested
   (let [f (doto (java.io.File/createTempFile "_postal-" ".txt"))
         _ (doto (java.io.PrintWriter. f)
