@@ -222,4 +222,4 @@ Colin Jones
 
 ## License
 
-Postal is (c) 2009-2011 Andrew A. Raines and released under the MIT license.
+Postal is (c) 2009-2013 Andrew A. Raines and released under the MIT license.
