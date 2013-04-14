@@ -26,11 +26,12 @@
         [postal.support :only [make-props]])
   (:import [javax.mail Transport Session]))
 
-(defn ^:dynamic smtp-send* [session proto {:keys [host port user pass]} msgs]
+(defn ^:dynamic smtp-send* [^Session session ^String proto
+                            {:keys [host port user pass]} msgs]
   (with-open [transport (.getTransport session proto)]
     (.connect transport host port (str user) (str pass))
     (let [jmsgs (map #(make-jmessage % session) msgs)]
-      (doseq [jmsg jmsgs]
+      (doseq [^javax.mail.Message jmsg jmsgs]
         (.sendMessage transport jmsg (.getAllRecipients jmsg)))
       {:code 0 :error :SUCCESS :message "messages sent"})))
 
