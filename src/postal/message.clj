@@ -34,17 +34,17 @@
 (declare make-jmessage)
 
 (defn recipients [msg]
-  (let [jmsg (make-jmessage msg)]
+  (let [^javax.mail.Message jmsg (make-jmessage msg)]
     (map str (.getAllRecipients jmsg))))
 
 (defn sender [msg]
   (or (:sender msg) (:from msg)))
 
 (defn make-address
-  ([addr]
+  ([^String addr]
      (try (InternetAddress. addr)
           (catch Exception _)))
-  ([addr name-str]
+  ([^String addr ^String name-str]
      (try (InternetAddress. addr name-str)
           (catch Exception _))))
 
@@ -55,13 +55,14 @@
 
 (defn message->str [msg]
   (with-open [out (java.io.ByteArrayOutputStream.)]
-    (let [jmsg (if (instance? MimeMessage msg) msg (make-jmessage msg))]
+    (let [^javax.mail.Message jmsg (if (instance? MimeMessage msg)
+                                     msg (make-jmessage msg))]
       (.writeTo jmsg out)
       (str out))))
 
 (defn add-recipient! [jmsg rtype addr]
   (if-let [addr (make-address addr)]
-    (doto jmsg
+    (doto ^javax.mail.Message jmsg
       (.addRecipient rtype addr))
     jmsg))
 
@@ -73,7 +74,7 @@
         (add-recipient! jmsg rtype addr))))
   jmsg)
 
-(defn- fileize [x]
+(defn- ^java.io.File fileize [x]
   (if (instance? java.io.File x) x (java.io.File. x)))
 
 (declare eval-bodypart eval-multipart)
@@ -112,7 +113,7 @@
         ;; alternative, encrypted...
         ;; The caller can use the first two entries to specify a type.
         ;; If no type is given, we default to "mixed" (for attachments etc.)
-        [multiPartType, parts] (if (keyword? (first parts))
+        [^String multiPartType, parts] (if (keyword? (first parts))
                                  [(name (first parts)) (rest parts)]
                                  ["mixed" parts])
         mp (javax.mail.internet.MimeMultipart. multiPartType)]
@@ -120,15 +121,15 @@
       (.addBodyPart mp (eval-part part)))
     mp))
 
-(defn add-multipart! [jmsg parts]
+(defn add-multipart! [^javax.mail.Message jmsg parts]
   (.setContent jmsg (eval-multipart parts)))
 
-(defn add-extra! [jmsg msgrest]
+(defn add-extra! [^javax.mail.Message jmsg msgrest]
   (doseq [[n v] msgrest]
     (.addHeader jmsg (if (keyword? n) (name n) n) v))
   jmsg)
 
-(defn add-body! [jmsg body]
+(defn add-body! [^javax.mail.Message jmsg body]
   (if (string? body)
     (doto jmsg (.setText body))
     (doto jmsg (add-multipart! body))))
