@@ -28,7 +28,7 @@
   (:use [postal.smtp :only [smtp-send]]
         [postal.message :only [make-fixture]]))
 
-(def DATEFORMAT (SimpleDateFormat. "yyyy-MM-dd.HH:mm:ss"))
+(def ^SimpleDateFormat DATEFORMAT (SimpleDateFormat. "yyyy-MM-dd.HH:mm:ss"))
 
 (defonce counter (atom 0))
 
