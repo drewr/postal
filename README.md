@@ -219,6 +219,7 @@ Sam Ritchie
 J. David Lowe     
 Kevin Dejong    
 Colin Jones     
+Andy Fingerhut     
 
 ## License
 
