@@ -59,4 +59,10 @@
             {"mail.smtp.user" "foo"
              "mail.smtp.port" 465
              "mail.smtp.auth" "true"
+             "mail.smtp.host" "smtp.bar.dom"})
+  (is-props {:host "smtp.bar.dom"
+             :user nil
+             :pass nil}
+            {"mail.smtp.port" 25
+             "mail.smtp.auth" "false"
              "mail.smtp.host" "smtp.bar.dom"}))

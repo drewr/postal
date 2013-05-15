@@ -28,8 +28,9 @@
 
 (defn ^:dynamic smtp-send* [^Session session ^String proto
                             {:keys [host port user pass]} msgs]
+  (assert (or (and (nil? user) (nil? pass)) (and user pass)))
   (with-open [transport (.getTransport session proto)]
-    (.connect transport host port (str user) (str pass))
+    (.connect transport host port user pass)
     (let [jmsgs (map #(make-jmessage % session) msgs)]
       (doseq [^javax.mail.Message jmsg jmsgs]
         (.sendMessage transport jmsg (.getAllRecipients jmsg)))
@@ -46,12 +47,12 @@
   ([args & msgs]
      (let [{:keys [host port user pass sender ssl]
             :or {host "localhost"}} args
-           port (if (nil? port)
-                  (if ssl 465 25)
-                  port)
-           proto (if ssl "smtps" "smtp")
-           args (merge args {:port port
-                             :proto proto})
-           session (doto (Session/getInstance (make-props sender args))
-                     (.setDebug false))]
+            port (if (nil? port)
+                   (if ssl 465 25)
+                   port)
+            proto (if ssl "smtps" "smtp")
+            args (merge args {:port port
+                              :proto proto})
+            session (doto (Session/getInstance (make-props sender args))
+                      (.setDebug false))]
        (smtp-send* session proto args msgs))))
