@@ -1,3 +1,19 @@
+1.10.3
+
+* Fix bug where nil user/pass will trigger authentication.
+
+1.10.2
+
+* Eliminate many instances of reflection.
+
+1.10.1
+
+* Don't include clojure in dependencies.
+
+1.10.0
+
+* Allow custom filename and description for attachments.
+
 1.9.0
 
 * Support custom message ID.
