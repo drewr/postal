@@ -56,7 +56,9 @@
      :message message}))
 
 (defn sendmail-find []
-  (first (filter #(.isFile (java.io.File. ^String %)) sendmails)))
+  (if-let [SENDMAIL (System/getenv "SENDMAIL")]
+    SENDMAIL
+    (first (filter #(.isFile (java.io.File. ^String %)) sendmails))))
 
 (defn sanitize [^String text]
   (.replaceAll text "\r\n" (System/getProperty "line.separator")))
