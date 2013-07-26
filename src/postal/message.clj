@@ -23,6 +23,7 @@
 
 (ns postal.message
   (:use [clojure.set :only [difference]]
+        [clojure.java.io :only [file]]
         [postal.date :only [make-date]]
         [postal.support :only [do-when make-props message-id user-agent]])
   (:import [java.util UUID]
@@ -30,6 +31,12 @@
            [javax.mail.internet MimeMessage InternetAddress
             AddressException]
            [javax.mail PasswordAuthentication]))
+
+(set! *warn-on-reflection* true)
+
+(def default-charset "utf-8")
+
+(def ^{:dynamic true :private true} *charset*)
 
 (declare make-jmessage)
 
@@ -41,12 +48,16 @@
   (or (:sender msg) (:from msg)))
 
 (defn make-address
-  ([^String addr]
-     (try (InternetAddress. addr)
-          (catch Exception _)))
-  ([^String addr ^String name-str]
-     (try (InternetAddress. addr name-str)
-          (catch Exception _))))
+  ([addr]
+     (make-address addr nil))
+  ([addr name-str]
+     (try
+       (let [iaddr (InternetAddress. addr)
+             name-str (or name-str (.getPersonal iaddr))]
+         ;; ensure charset is set correctly for personal name
+         (.setPersonal iaddr name-str *charset*)
+         iaddr)
+       (catch Exception _))))
 
 (defn make-addresses [addresses]
   (if (string? addresses)
@@ -62,20 +73,16 @@
 
 (defn add-recipient! [jmsg rtype addr]
   (if-let [addr (make-address addr)]
-    (doto ^javax.mail.Message jmsg
-      (.addRecipient rtype addr))
-    jmsg))
+    (.addRecipient ^javax.mail.Message jmsg rtype addr)))
 
 (defn add-recipients! [jmsg rtype addrs]
-  (when addrs
-    (if (string? addrs)
-      (add-recipient! jmsg rtype addrs)
-      (doseq [addr addrs]
-        (add-recipient! jmsg rtype addr))))
-  jmsg)
+  (if (string? addrs)
+    (add-recipient! jmsg rtype addrs)
+    (doseq [addr addrs]
+      (add-recipient! jmsg rtype addr))))
 
 (defn- ^java.io.File fileize [x]
-  (if (instance? java.io.File x) x (java.io.File. x)))
+  (if (instance? java.io.File x) x (java.io.File. ^String x)))
 
 (declare eval-bodypart eval-multipart)
 
@@ -93,7 +100,7 @@
   (condp (fn [test type] (some #(= % type) test)) (:type part)
     [:inline :attachment]
     (let [attachment-part (doto (javax.mail.internet.MimeBodyPart.)
-                            (.attachFile (fileize (:content part)))
+                            (.attachFile (file (:content part)))
                             (.setDisposition (name (:type part))))]
 
       (when (:content-type part)
@@ -126,17 +133,15 @@
 
 (defn add-extra! [^javax.mail.Message jmsg msgrest]
   (doseq [[n v] msgrest]
-    (.addHeader jmsg (if (keyword? n) (name n) n) v))
-  jmsg)
+    (.addHeader jmsg (if (keyword? n) (name n) n) v)))
 
-(defn add-body! [^javax.mail.Message jmsg body]
+(defn add-body! [jmsg body]
   (if (string? body)
-    (doto jmsg (.setText body))
-    (doto jmsg (add-multipart! body))))
+    (.setText ^MimeMessage jmsg body *charset*)
+    (add-multipart! jmsg body)))
 
 (defn drop-keys [m ks]
-  (select-keys m
-               (difference (set (keys m)) (set ks))))
+  (select-keys m (difference (set (keys m)) (set ks))))
 
 (defn make-auth [user pass]
   (proxy [javax.mail.Authenticator] []
@@ -155,27 +160,26 @@
   ([msg session]
      (let [standard [:from :reply-to :to :cc :bcc
                      :date :subject :body :message-id
-                     :user-agent]
-           jmsg (proxy [MimeMessage] [session]
+                     :user-agent :charset]
+           jmsg (proxy [MimeMessage] [^Session session]
                   (updateMessageID []
                     (.setHeader
-                     this
+                     ^MimeMessage this
                      "Message-ID" ((:message-id msg message-id)))))]
-       (doto jmsg
-         (add-recipients! Message$RecipientType/TO (:to msg))
-         (add-recipients! Message$RecipientType/CC (:cc msg))
-         (add-recipients! Message$RecipientType/BCC (:bcc msg))
-         (.setFrom (if-let [sender (:sender msg)]
-                     (make-address (:from msg) sender)
-                     (make-address (:from msg))))
-         (.setReplyTo (when-let [reply-to (:reply-to msg)]
-                        (make-addresses reply-to)))
-         (.setSubject (:subject msg))
-         (.setSentDate (or (:date msg) (make-date)))
-         (.addHeader "User-Agent" (:user-agent msg (user-agent)))
-         (add-extra! (drop-keys msg standard))
-         (add-body! (:body msg))
-         (.saveChanges)))))
+       (binding [*charset* (or (:charset msg) default-charset)]
+         (doto jmsg
+           (add-recipients! Message$RecipientType/TO (:to msg))
+           (add-recipients! Message$RecipientType/CC (:cc msg))
+           (add-recipients! Message$RecipientType/BCC (:bcc msg))
+           (.setFrom (make-address (:from msg)))
+           (.setReplyTo (when-let [reply-to (:reply-to msg)]
+                          (make-addresses reply-to)))
+           (.setSubject (:subject msg))
+           (.setSentDate (or (:date msg) (make-date)))
+           (.addHeader "User-Agent" (:user-agent msg (user-agent)))
+           (add-extra! (drop-keys msg standard))
+           (add-body! (:body msg))
+           (.saveChanges))))))
 
 (defn make-fixture [from to & {:keys [tag]}]
   (let [uuid (str (UUID/randomUUID))
