@@ -31,16 +31,17 @@
             AddressException]))
 
 (deftest test-simple
-  (let [m {:from "fee@bar.dom"
-           :to "Foo Bar <foo@bar.dom>"
-           :cc ["baz@bar.dom" "Quux <quux@bar.dom>"]
-           :date (java.util.Date.)
-           :subject "Test"
-           :body "Test!"
-           :charset "us-ascii"}]
-    (is (= "Subject: Test" (re-find #"Subject: Test" (message->str m))))
-    (is (re-find #"Cc: baz@bar.dom, Quux <quux@bar.dom>" (message->str m)))
-    (is (re-find #"(?i)content-type:.*us-ascii" (message->str m)))))
+  (let [m (message->str
+           {:from "fee@bar.dom"
+            :to "Foo Bar <foo@bar.dom>"
+            :cc ["baz@bar.dom" "Quux <quux@bar.dom>"]
+            :date (java.util.Date.)
+            :subject "Test"
+            :body "Test!"
+            :charset "us-ascii"})]
+    (is (= "Subject: Test" (re-find #"Subject: Test" m)))
+    (is (re-find #"Cc: baz@bar.dom, Quux <quux@bar.dom>" m))
+    (is (re-find #"(?i)content-type:.*us-ascii" m))))
 
 (deftest test-multipart
   (let [m (message->str
@@ -157,24 +158,25 @@
     (is (re-find #"Reply-To: yermom" (message->str m)))))
 
 (deftest test-charset-addrs
-  (let [m {:from "íč <p@p.com>"
-           :to "Böb <bob@bar.dom>"
-           :cc ["Plain Addr <plain@bar.dom>"]
-           :subject "Test"
-           :body "Charsets!"}]
-    (is (.contains (message->str m) "=?utf-8?B?w63EjQ==?="))
-    (is (.contains (message->str m) "=?utf-8?Q?B=C3=B6b?="))
-    (is (.contains (message->str m) "Plain Addr")))
-  (let [m {:from "íč <p@p.com>"
-           :to "Böb <bob@bar.dom>"
-           :cc ["Plain Addr <plain@bar.dom>"]
-           :subject "Test"
-           :charset "iso-8859-1"
-           :body "Charsets!"}]
-    (is (.contains (message->str m)
-                   "Content-Type: text/plain; charset=iso-8859-1"))
-    (is (.contains (message->str m) "=?iso-8859-1?B?7T8=?="))
-    (is (.contains (message->str m) "Plain Addr")))
+  (let [m (message->str
+           {:from "íč <p@p.com>"
+            :to "Böb <bob@bar.dom>"
+            :cc ["Plain Addr <plain@bar.dom>"]
+            :subject "Test"
+            :body "Charsets!"})]
+    (is (.contains m "=?utf-8?B?w63EjQ==?="))
+    (is (.contains m "=?utf-8?Q?B=C3=B6b?="))
+    (is (.contains m "Plain Addr")))
+  (let [m (message->str
+           {:from "íč <p@p.com>"
+            :to "Böb <bob@bar.dom>"
+            :cc ["Plain Addr <plain@bar.dom>"]
+            :subject "Test"
+            :charset "iso-8859-1"
+            :body "Charsets!"})]
+    (is (.contains m "Content-Type: text/plain; charset=iso-8859-1"))
+    (is (.contains m "=?iso-8859-1?B?7T8=?="))
+    (is (.contains m "Plain Addr")))
   (let [m (message->str
            {:from "foo@bar.dom"
             :to "baz@bar.dom"
@@ -222,4 +224,3 @@
             :body "Where is that message ID!"
             :user-agent "foo/1.0"})]
     (is (.contains m "User-Agent: foo"))))
-
