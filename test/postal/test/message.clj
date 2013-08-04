@@ -31,16 +31,17 @@
             AddressException]))
 
 (deftest test-simple
-  (let [m {:from "fee@bar.dom"
-           :to "Foo Bar <foo@bar.dom>"
-           :cc ["baz@bar.dom" "Quux <quux@bar.dom>"]
-           :date (java.util.Date.)
-           :subject "Test"
-           :body "Test!"
-           :charset "us-ascii"}]
-    (is (= "Subject: Test" (re-find #"Subject: Test" (message->str m))))
-    (is (re-find #"Cc: baz@bar.dom, Quux <quux@bar.dom>" (message->str m)))
-    (is (re-find #"(?i)content-type:.*us-ascii" (message->str m)))))
+  (let [m (message->str
+           {:from "fee@bar.dom"
+            :to "Foo Bar <foo@bar.dom>"
+            :cc ["baz@bar.dom" "Quux <quux@bar.dom>"]
+            :date (java.util.Date.)
+            :subject "Test"
+            :body "Test!"
+            :charset "us-ascii"})]
+    (is (= "Subject: Test" (re-find #"Subject: Test" m)))
+    (is (re-find #"Cc: baz@bar.dom, Quux <quux@bar.dom>" m))
+    (is (re-find #"(?i)content-type:.*us-ascii" m))))
 
 (deftest test-multipart
   (let [m (message->str
@@ -156,17 +157,16 @@
            :reply-to "yermom@bar.dom"}]
     (is (re-find #"Reply-To: yermom" (message->str m)))))
 
-(deftest test-charsets
+(deftest test-charset-addrs
   (let [m (message->str
-           {:from "From íč <p@p.com>"
-            :to "To Böb <bob@bar.dom>"
+           {:from "íč <p@p.com>"
+            :to "Böb <bob@bar.dom>"
             :cc ["Plain Addr <plain@bar.dom>"]
-            :subject "Subject æøå" ;; Norwegian
+            :subject "Test"
             :body "Charsets!"})]
-    (is (.contains m "From_=C3=AD=C4=8D?="))
-    (is (.contains m "To_B=C3=B6b?="))
-    (is (.contains m "Plain Addr"))
-    (is (.contains m "Subject_=C3=A6=C3=B8=C3=A5?=")))
+    (is (.contains m "=?utf-8?B?w63EjQ==?="))
+    (is (.contains m "=?utf-8?Q?B=C3=B6b?="))
+    (is (.contains m "Plain Addr")))
   (let [m (message->str
            {:from "íč <p@p.com>"
             :to "Böb <bob@bar.dom>"
@@ -224,4 +224,3 @@
             :body "Where is that message ID!"
             :user-agent "foo/1.0"})]
     (is (.contains m "User-Agent: foo"))))
-
