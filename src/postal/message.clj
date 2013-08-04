@@ -1,8 +1,31 @@
+;; Copyright (c) Andrew A. Raines
+;;
+;; Permission is hereby granted, free of charge, to any person
+;; obtaining a copy of this software and associated documentation
+;; files (the "Software"), to deal in the Software without
+;; restriction, including without limitation the rights to use,
+;; copy, modify, merge, publish, distribute, sublicense, and/or sell
+;; copies of the Software, and to permit persons to whom the
+;; Software is furnished to do so, subject to the following
+;; conditions:
+;;
+;; The above copyright notice and this permission notice shall be
+;; included in all copies or substantial portions of the Software.
+;;
+;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+;; OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+;; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+;; OTHER DEALINGS IN THE SOFTWARE.
+
 (ns postal.message
   (:use [clojure.set :only [difference]]
         [clojure.java.io :only [file]]
         [postal.date :only [make-date]]
-        [postal.support :only [do-when make-props]])
+        [postal.support :only [do-when make-props message-id user-agent]])
   (:import [java.util UUID]
            [javax.mail Session Message$RecipientType]
            [javax.mail.internet MimeMessage InternetAddress
@@ -14,21 +37,21 @@
 (declare make-jmessage)
 
 (defn recipients [msg]
-  (let [jmsg (make-jmessage msg)]
+  (let [^javax.mail.Message jmsg (make-jmessage msg)]
     (map str (.getAllRecipients jmsg))))
 
 (defn sender [msg]
   (or (:sender msg) (:from msg)))
 
 (defn make-address
-  ([addr charset]
+  ([^String addr ^String charset]
      (let [a (try (InternetAddress. addr)
                   (catch Exception _))]
        (if a
          (InternetAddress. (.getAddress a)
                            (.getPersonal a)
                            charset))))
-  ([addr name-str charset]
+  ([^String addr ^String name-str ^String charset]
      (try (InternetAddress. addr name-str charset)
           (catch Exception _))))
 
@@ -40,13 +63,14 @@
 
 (defn message->str [msg]
   (with-open [out (java.io.ByteArrayOutputStream.)]
-    (let [jmsg (if (instance? MimeMessage msg) msg (make-jmessage msg))]
+    (let [^javax.mail.Message jmsg (if (instance? MimeMessage msg)
+                                     msg (make-jmessage msg))]
       (.writeTo jmsg out)
       (str out))))
 
 (defn add-recipient! [jmsg rtype addr charset]
   (if-let [addr (make-address addr charset)]
-    (doto jmsg
+    (doto ^javax.mail.Message jmsg
       (.addRecipient rtype addr))
     jmsg))
 
@@ -79,6 +103,12 @@
 
       (when (:content-type part)
         (.setHeader attachment-part "Content-Type" (:content-type part)))
+      (when (:content-id part)
+        (.setContentID attachment-part (str "<" (:content-id part) ">")))
+      (when (:file-name part)
+        (.setFileName attachment-part (:file-name part)))
+      (when (:description part)
+        (.setDescription attachment-part (:description part)))
       attachment-part)
     (doto (javax.mail.internet.MimeBodyPart.)
       (.setContent (:content part) (:type part)))))
@@ -88,7 +118,7 @@
         ;; alternative, encrypted...
         ;; The caller can use the first two entries to specify a type.
         ;; If no type is given, we default to "mixed" (for attachments etc.)
-        [multiPartType, parts] (if (keyword? (first parts))
+        [^String multiPartType, parts] (if (keyword? (first parts))
                                  [(name (first parts)) (rest parts)]
                                  ["mixed" parts])
         mp (javax.mail.internet.MimeMultipart. multiPartType)]
@@ -96,15 +126,15 @@
       (.addBodyPart mp (eval-part part)))
     mp))
 
-(defn add-multipart! [jmsg parts]
+(defn add-multipart! [^javax.mail.Message jmsg parts]
   (.setContent jmsg (eval-multipart parts)))
 
-(defn add-extra! [jmsg msgrest]
+(defn add-extra! [^javax.mail.Message jmsg msgrest]
   (doseq [[n v] msgrest]
     (.addHeader jmsg (if (keyword? n) (name n) n) v))
   jmsg)
 
-(defn add-body! [jmsg body charset]
+(defn add-body! [^javax.mail.Message jmsg body charset]
   (if (string? body)
     (doto jmsg (.setText body charset))
     (doto jmsg (add-multipart! body))))
@@ -128,9 +158,15 @@
                          (Session/getInstance props)))]
        (make-jmessage msg session)))
   ([msg session]
-     (let [standard [:from :reply-to :to :cc :bcc :date :subject :body]
+     (let [standard [:from :reply-to :to :cc :bcc
+                     :date :subject :body :message-id
+                     :user-agent]
            charset (or (:charset msg) default-charset)
-           jmsg (MimeMessage. session)]
+           jmsg (proxy [MimeMessage] [session]
+                  (updateMessageID []
+                    (.setHeader
+                     this
+                     "Message-ID" ((:message-id msg message-id)))))]
        (doto jmsg
          (add-recipients! Message$RecipientType/TO (:to msg) charset)
          (add-recipients! Message$RecipientType/CC (:cc msg) charset)
@@ -142,8 +178,10 @@
                         (make-addresses reply-to charset)))
          (.setSubject (:subject msg))
          (.setSentDate (or (:date msg) (make-date)))
+         (.addHeader "User-Agent" (:user-agent msg (user-agent)))
          (add-extra! (drop-keys msg standard))
-         (add-body! (:body msg) charset)))))
+         (add-body! (:body msg) charset)
+         (.saveChanges)))))
 
 (defn make-fixture [from to & {:keys [tag]}]
   (let [uuid (str (UUID/randomUUID))

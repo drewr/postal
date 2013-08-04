@@ -1,3 +1,26 @@
+;; Copyright (c) Andrew A. Raines
+;;
+;; Permission is hereby granted, free of charge, to any person
+;; obtaining a copy of this software and associated documentation
+;; files (the "Software"), to deal in the Software without
+;; restriction, including without limitation the rights to use,
+;; copy, modify, merge, publish, distribute, sublicense, and/or sell
+;; copies of the Software, and to permit persons to whom the
+;; Software is furnished to do so, subject to the following
+;; conditions:
+;;
+;; The above copyright notice and this permission notice shall be
+;; included in all copies or substantial portions of the Software.
+;;
+;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+;; OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+;; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+;; OTHER DEALINGS IN THE SOFTWARE.
+
 (ns postal.test.message
   (:use [postal.message]
         [clojure.test :only [run-tests deftest is]]
@@ -20,26 +43,27 @@
     (is (re-find #"(?i)content-type:.*us-ascii" (message->str m)))))
 
 (deftest test-multipart
-  (let [m {:from "foo@bar.dom"
-           :to "baz@bar.dom"
-           :subject "Test"
-           :body [{:type "text/html"
-                   :content "<b>some html</b>"}]}]
-    (is (= "multipart/mixed" (re-find #"multipart/mixed" (message->str m))))
-    (is (= "Content-Type: text/html"
-           (re-find #"Content-Type: text/html" (message->str m))))
-    (is (= "some html" (re-find #"some html" (message->str m))))))
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body [{:type "text/html"
+                    :content "<b>some html</b>"}]})]
+    (is (.contains m "multipart/mixed"))
+    (is (.contains m "Content-Type: text/html"))
+    (is (.contains m "some html"))))
 
 (deftest test-inline
   (let [f (doto (java.io.File/createTempFile "_postal-" ".txt"))
         _ (doto (java.io.PrintWriter. f)
             (.println "tempfile contents") (.close))
-        m {:from "foo@bar.dom"
-           :to "baz@bar.dom"
-           :subject "Test"
-           :body [{:type :inline
-                   :content f}]}]
-    (is (= "tempfile" (re-find #"tempfile" (message->str m))))
+        m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body [{:type :inline
+                    :content f}]})]
+    (is (.contains m "tempfile"))
     (.delete f)))
 
 (deftest test-attachment
@@ -47,47 +71,65 @@
         _ (doto (java.io.PrintWriter. f1)
             (.println "tempfile contents") (.close))
         f2 "/etc/resolv.conf"
-        m {:from "foo@bar.dom"
-           :to "baz@bar.dom"
-           :subject "Test"
-           :body [{:type :attachment
-                   :content f1}
-                  {:type :attachment
-                   :content f2}]}]
-    (is (= "tempfile" (re-find #"tempfile" (message->str m))))
+        m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body [{:type :attachment
+                    :content f1}
+                   {:type :attachment
+                    :content f2}]})]
+    (is (.contains m "tempfile"))
+    (.delete f1)))
+
+(deftest test-attachment-with-custom-name-and-description
+  (let [f1 (doto (java.io.File/createTempFile "_postal-" ".txt"))
+        _ (doto (java.io.PrintWriter. f1)
+            (.println "tempfile contents") (.close))
+        m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body [{:type "text/plain"
+                    :content "See attached"}
+                   {:type :attachment
+                    :file-name "ImportantDocumentA.txt"
+                    :description "A document that we should all marvel at"
+                    :content f1}]})]
+    (is (.contains m "tempfile"))
+    (is (.contains m "ImportantDocumentA.txt"))
+    (is (.contains m "A document that we should all marvel at"))
     (.delete f1)))
 
 (deftest test-nested
   (let [f (doto (java.io.File/createTempFile "_postal-" ".txt"))
         _ (doto (java.io.PrintWriter. f)
             (.println "tempfile contents") (.close))
-        m {:from "foo@bar.dom"
-           :to "baz@bar.dom"
-           :subject "Test"
-           :body [[:alternative
-                   {:type "text/html"
-                    :content "<b>some html</b>"}
-                   {:type "text/plain"
-                    :content "some text"}]
-                  {:type :attachment
-                   :content f}]}]
-    (is (= "multipart/mixed" (re-find #"multipart/mixed" (message->str m))))
-    (is (= "multipart/alternative"
-           (re-find #"multipart/alternative" (message->str m))))
-    (is (= "Content-Type: text/html"
-           (re-find #"Content-Type: text/html" (message->str m))))
-    (is (= "some html" (re-find #"some html" (message->str m))))
-    (is (= "Content-Type: text/plain"
-           (re-find #"Content-Type: text/plain" (message->str m))))
-    (is (= "some text" (re-find #"some text" (message->str m))))
-    (is (= "tempfile" (re-find #"tempfile" (message->str m))))
+        m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body [[:alternative
+                    {:type "text/html"
+                     :content "<b>some html</b>"}
+                    {:type "text/plain"
+                     :content "some text"}]
+                   {:type :attachment
+                    :content f}]})]
+    (is (.contains m "multipart/mixed"))
+    (is (.contains m "multipart/alternative"))
+    (is (.contains m "Content-Type: text/html"))
+    (is (.contains m "some html"))
+    (is (.contains m "Content-Type: text/plain"))
+    (is (.contains m "some text"))
+    (is (.contains m "tempfile"))
     (.delete f)))
 
 (deftest test-fixture
   (let [from "foo@bar.dom"
         to "baz@bar.dom"
         tag "[TEST]"]
-    (is (re-find #"^\[TEST" (:subject (make-fixture from to :tag tag))))))
+    (is (zero? (.indexOf (:subject (make-fixture from to :tag tag)) "[TEST")))))
 
 (deftest test-extra-headers
   (let [m {:from "foo@bar.dom"
@@ -95,15 +137,16 @@
            :subject "Test"
            :User-Agent "Lorem Ipsum"
            :body "Foo!"}]
-    (is (re-find #"User-Agent: Lorem Ipsum" (message->str m)))))
+    (is (.contains (message->str m) "User-Agent: Lorem Ipsum"))))
 
 (deftest test-bad-addrs
-  (let [m {:from "foo @bar.dom"
-           :to "badddz@@@bar.dom"
-           :subject "Test"
-           :body "Bad recipient!"}]
-    (is (not (re-find #"badddz" (message->str m))))
-    (is (not (re-find #"foo @bar" (message->str m))))))
+  (let [m (message->str
+           {:from "foo @bar.dom"
+            :to "badddz@@@bar.dom"
+            :subject "Test"
+            :body "Bad recipient!"})]
+    (is (not (.contains m "badddz")))
+    (is (not (.contains m "foo @bar")))))
 
 (deftest test-reply-to
   (let [m {:from "foo@bar.dom"
@@ -131,4 +174,52 @@
     (is (.contains (message->str m)
                    "Content-Type: text/plain; charset=iso-8859-1"))
     (is (.contains (message->str m) "=?iso-8859-1?B?7T8=?="))
-    (is (.contains (message->str m) "Plain Addr"))))
+    (is (.contains (message->str m) "Plain Addr")))
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body "Reply me!"
+            :reply-to "yermom@bar.dom"})]
+    (is (.contains m "Reply-To: yermom"))))
+
+(deftest test-only-bcc
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :bcc "baz@bar.dom"
+            :subject "Test"
+            :body "Only Bcc!!"})]
+    (is (.contains m "Bcc: baz"))
+    (is (not (.contains m "To: ")))))
+
+(deftest test-message-id
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body "Where is that message ID!"})]
+    (is (re-find #"Message-ID: <.*?@postal\..*>" m)))
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body "Where is that message ID!"
+            :message-id #(postal.support/message-id "foo.bar.dom")})]
+    (is (.contains m "@foo.bar.dom")))
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body "Where is that message ID!"
+            :message-id (fn [] "foo")})]
+    (is (.contains m "Message-ID: foo"))))
+
+(deftest test-user-agent
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body "Where is that message ID!"
+            :user-agent "foo/1.0"})]
+    (is (.contains m "User-Agent: foo"))))
+

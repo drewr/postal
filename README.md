@@ -20,11 +20,11 @@ SSL.
 
 ### Install
 
-Served by Clojars.  In your project.clj:
+Served by Clojars.  In your Leiningen project.clj:
 
-    [com.draines/postal "1.8.0"]
+    [com.draines/postal "1.10.3"]
 
-Likewise substitute any tag, like `1.6.0` etc.
+Likewise substitute any tag name from git.
 
 ### Examples
 
@@ -131,8 +131,10 @@ Attachments and multipart messages can be added as sequences of maps:
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core>
 
-If your attachment has a content-type that is not recognized by JavaMail, e.g.,
-`.pdf` or `.doc`, you can set `:content-type`.
+If your attachment has a content-type that is not recognized by
+JavaMail, e.g., `.pdf` or `.doc`, you can set `:content-type`.  You
+can also set `:file-name` and `:description` if you don't like the
+filename that `:content` uses.
 
 If you want another multipart type than "mixed", you can specify it as a keyword
 as the first value in the map sequence. That way you can for example create an
@@ -159,6 +161,32 @@ support (or suppress) HTML-mails:
 
 Postal uses JavaMail under the covers, which defaults to charset
 `us-ascii`. To set the charset, set the `:type`, like `"text/html; charset=utf-8"`.
+
+#### Message ID
+
+Postal will supply a message ID by default that looks like
+`[random]@postal.[host]`.  You can customize this by supplying a
+`:message-id` header with a function that takes no args.  The included
+`postal.support/message-id` can be used if you'd like to make use of
+its randomness and only customize the hostname.
+
+    {:from "foo@bar.dom"
+     :to "baz@bar.dom"
+     :subject "Message IDs!"
+     :body "Regards."
+     :message-id #(postal.support/message-id "foo.bar.dom")}
+
+#### User Agent
+
+You can customize the default `User-Agent` header (by default
+`postal/VERSION`).
+
+    {:from "foo@bar.dom"
+     :to "baz@bar.dom"
+     :subject "Message IDs!"
+     :body "Regards."
+     :user-agent "MyMailer 1.0"}
+
 
 #### Stress-testing
 
@@ -188,7 +216,11 @@ Jeff Palmucci
 Allen Rohner      
 Paul Stadig       
 Sam Ritchie      
+J. David Lowe     
+Kevin Dejong    
+Colin Jones     
+Andy Fingerhut     
 
 ## License
 
-Postal is (c) 2009-2011 Andrew A. Raines and released under the MIT license.
+Postal is (c) 2009-2013 Andrew A. Raines and released under the MIT license.
