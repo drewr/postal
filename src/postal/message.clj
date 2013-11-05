@@ -139,10 +139,6 @@
     (doto jmsg (.setText body charset))
     (doto jmsg (add-multipart! body))))
 
-(defn drop-keys [m ks]
-  (select-keys m
-               (difference (set (keys m)) (set ks))))
-
 (defn make-auth [user pass]
   (proxy [javax.mail.Authenticator] []
     (getPasswordAuthentication [] (PasswordAuthentication. user pass))))
@@ -179,7 +175,7 @@
          (.setSubject (:subject msg))
          (.setSentDate (or (:date msg) (make-date)))
          (.addHeader "User-Agent" (:user-agent msg (user-agent)))
-         (add-extra! (drop-keys msg standard))
+         (add-extra! (apply dissoc msg standard))
          (add-body! (:body msg) charset)
          (.saveChanges)))))
 
