@@ -139,10 +139,6 @@
     (doto jmsg (.setText body charset))
     (doto jmsg (add-multipart! body))))
 
-(defn drop-keys [m ks]
-  (select-keys m
-               (difference (set (keys m)) (set ks))))
-
 (defn make-auth [user pass]
   (proxy [javax.mail.Authenticator] []
     (getPasswordAuthentication [] (PasswordAuthentication. user pass))))
