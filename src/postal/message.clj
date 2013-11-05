@@ -179,7 +179,7 @@
          (.setSubject (:subject msg) charset)
          (.setSentDate (or (:date msg) (make-date)))
          (.addHeader "User-Agent" (:user-agent msg (user-agent)))
-         (add-extra! (drop-keys msg standard))
+         (add-extra! (apply dissoc msg standard))
          (add-body! (:body msg) charset)
          (.saveChanges)))))
 
