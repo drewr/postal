@@ -220,6 +220,8 @@ J. David Lowe
 Kevin Dejong    
 Colin Jones     
 Andy Fingerhut     
+Dimas Guardado       
+Roman Flammer          
 
 ## License
 
