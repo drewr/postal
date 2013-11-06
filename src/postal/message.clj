@@ -176,7 +176,7 @@
                      (make-address (:from msg) charset)))
          (.setReplyTo (when-let [reply-to (:reply-to msg)]
                         (make-addresses reply-to charset)))
-         (.setSubject (:subject msg))
+         (.setSubject (:subject msg) charset)
          (.setSentDate (or (:date msg) (make-date)))
          (.addHeader "User-Agent" (:user-agent msg (user-agent)))
          (add-extra! (drop-keys msg standard))
