@@ -157,16 +157,17 @@
            :reply-to "yermom@bar.dom"}]
     (is (re-find #"Reply-To: yermom" (message->str m)))))
 
-(deftest test-charset-addrs
+(deftest test-charsets
   (let [m (message->str
-           {:from "íč <p@p.com>"
-            :to "Böb <bob@bar.dom>"
+           {:from "From íč <p@p.com>"
+            :to "To Böb <bob@bar.dom>"
             :cc ["Plain Addr <plain@bar.dom>"]
-            :subject "Test"
+            :subject "Subject æøå" ;; Norwegian
             :body "Charsets!"})]
-    (is (.contains m "=?utf-8?B?w63EjQ==?="))
-    (is (.contains m "=?utf-8?Q?B=C3=B6b?="))
-    (is (.contains m "Plain Addr")))
+    (is (.contains m "From_=C3=AD=C4=8D?="))
+    (is (.contains m "To_B=C3=B6b?="))
+    (is (.contains m "Plain Addr"))
+    (is (.contains m "Subject_=C3=A6=C3=B8=C3=A5?=")))
   (let [m (message->str
            {:from "íč <p@p.com>"
             :to "Böb <bob@bar.dom>"
