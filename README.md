@@ -208,20 +208,22 @@ You can stress-test a server by:
 
 ## Contributors
 
-André Branco      
-Joe Gallo      
+Allen Rohner       
+Andre Branco       
+Andy Fingerhut       
 Christoph Henkelmann       
-Gerrit Hentschel        
-Jeff Palmucci         
-Allen Rohner      
-Paul Stadig       
-Sam Ritchie      
-J. David Lowe     
-Kevin Dejong    
-Colin Jones     
-Andy Fingerhut     
+Colin Jones       
 Dimas Guardado       
-Roman Flammer          
+Gerrit Hentschel       
+J. David Lowe       
+Jeff Palmucci       
+Joe Gallo       
+Kevin DeJong       
+Paul Biggar       
+Paul Stadig       
+Phil Hagelberg       
+Roman Flammer       
+Sam Ritchie       
 
 ## License
 
