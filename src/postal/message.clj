@@ -23,10 +23,12 @@
 
 (ns postal.message
   (:use [clojure.set :only [difference]]
-        [clojure.java.io :only [file]]
+        [clojure.java.io :only [as-url as-file]]
         [postal.date :only [make-date]]
         [postal.support :only [do-when make-props message-id user-agent]])
   (:import [java.util UUID]
+           [java.net MalformedURLException]
+           [javax.activation DataHandler]
            [javax.mail Session Message$RecipientType]
            [javax.mail.internet MimeMessage InternetAddress
             AddressException]
@@ -60,6 +62,11 @@
     (recur [addresses] charset)
     (into-array InternetAddress (map #(make-address % charset)
                                      addresses))))
+
+(defn- make-url [x]
+  (try (as-url x)
+       (catch MalformedURLException e
+         (as-url (as-file x)))))
 
 (defn message->str [msg]
   (with-open [out (java.io.ByteArrayOutputStream.)]
@@ -97,8 +104,10 @@
 (defn eval-bodypart [part]
   (condp (fn [test type] (some #(= % type) test)) (:type part)
     [:inline :attachment]
-    (let [attachment-part (doto (javax.mail.internet.MimeBodyPart.)
-                            (.attachFile (file (:content part)))
+    (let [url (make-url (:content part))
+          attachment-part (doto (javax.mail.internet.MimeBodyPart.)
+                            (.setDataHandler (DataHandler. url))
+                            (.setFileName (re-find #"[^/]+$" (.getPath url)))
                             (.setDisposition (name (:type part))))]
 
       (when (:content-type part)
