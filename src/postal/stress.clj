@@ -66,7 +66,7 @@
      (spam host port from to n 0))
   ([host port from to n delay]
      (log (format "(thread: %s) %s msgs -> %s"
-                  (-> (Thread/currentThread) .getId)
+                  (.getId (Thread/currentThread))
                   n host))
      (let [date (.format DATEFORMAT (Date.))]
        (dotimes [x n]
