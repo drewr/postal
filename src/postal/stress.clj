@@ -40,7 +40,7 @@
 (defn log* [x s]
   (let [s* (format "%s %s"
                    (.format DATEFORMAT (Date.))
-                   (apply str (interpose " " s)))]
+                   (clojure.string/join " " s))]
     (println s*)
     (flush)
     s*))
