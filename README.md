@@ -34,7 +34,7 @@ At a bare minimum, provide a map with `:from` and `:to` (and you'll
 probably also be wanting `:subject` and `:body`, though they're
 technically optional).  Any other keys you supply will show up as
 ancillary headers.  This example will locally inject the message into
-whatever sendmail-compatible interface your systems provides.
+whatever sendmail-compatible interface your system provides.
 
     user> (in-ns 'postal.core)
     #<Namespace postal.core>
