@@ -41,6 +41,11 @@
                                          :port "25"}
                                        {:from "foo@example.com"
                                         :to "bar@example.com"}))))
+    (is (= :smtp (:which
+                  (postal/send-message {:host "localhost"
+                                        :port "25"}
+                                       {:from "foo@example.com"
+                                        :to "bar@example.com"}))))
     (is (= :sendmail (:which
                       (postal/send-message {:from "foo@example.com"
                                             :to "bar@example.com"}))))))
