@@ -34,7 +34,7 @@ At a bare minimum, provide a map with `:from` and `:to` (and you'll
 probably also be wanting `:subject` and `:body`, though they're
 technically optional).  Any other keys you supply will show up as
 ancillary headers.  This example will locally inject the message into
-sendmail.
+whatever sendmail-compatible interface your systems provides.
 
     user> (in-ns 'postal.core)
     #<Namespace postal.core>
@@ -49,9 +49,10 @@ sendmail.
 
 #### SMTP
 
-To use SMTP, add metadata with a `:host` key.
+To use SMTP, add an argument map before the message with at least
+`:host` key.
 
-    postal.core> (send-message ^{:host "mail.isp.net"}
+    postal.core> (send-message {:host "mail.isp.net"}
                                {:from "me@draines.com"
                                 :to "foo@example.com"
                                 :subject "Hi!"
@@ -59,13 +60,16 @@ To use SMTP, add metadata with a `:host` key.
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core>
 
+For legacy compatibility, you can also supply these connection
+parameters as metadata on the message.  `(send-message ^{:host ...} {:from ...})`
+
 #### Authentication
 
 Authenticate to SMTP server with `:user` and `:pass`.
 
-    postal.core> (send-message ^{:host "mail.isp.net"
-                                 :user "jsmith"
-                                 :pass "sekrat!!1"}
+    postal.core> (send-message {:host "mail.isp.net"
+                                :user "jsmith"
+                                :pass "sekrat!!1"}
                                {:from "me@draines.com"
                                 :to "foo@example.com"
                                 :subject "Hi!"
@@ -86,10 +90,10 @@ port 25 to relays that aren't theirs.  Gmail supports SSL & TLS but
 it's easiest to just use SSL since you'll likely need port 465
 anyway.)
 
-    postal.core> (send-message ^{:host "smtp.gmail.com"
-                                 :user "jsmith"
-                                 :pass "sekrat!!1"
-                                 :ssl :yes!!!11}
+    postal.core> (send-message {:host "smtp.gmail.com"
+                                :user "jsmith"
+                                :pass "sekrat!!1"
+                                :ssl :yes!!!11}
                                {:from "me@draines.com"
                                 :to "foo@example.com"
                                 :subject "Hi!"
@@ -104,9 +108,9 @@ make sure you use a verified address and your SMTP credentials (visit
 the AWS Console to set those up).  Also, if you're just sandboxing,
 you can only send *to* a verified address as well.  Example:
 
-    postal.core> (send-message ^{:user "AKIAIDTP........" :pass "AikCFhx1P......."
-                                 :host "email-smtp.us-east-1.amazonaws.com"
-                                 :port 587}
+    postal.core> (send-message {:user "AKIAIDTP........" :pass "AikCFhx1P......."
+                                :host "email-smtp.us-east-1.amazonaws.com"
+                                :port 587}
                    {:from "me@draines.com" :to "me@draines.com"
                     :subject "Test from Amazon SES" :body "Test!!!11"})
     {:error :SUCCESS, :code 0, :message "messages sent"}
@@ -116,7 +120,7 @@ you can only send *to* a verified address as well.  Example:
 
 Attachments and multipart messages can be added as sequences of maps:
 
-    postal.core> (send-message ^{:host "mail.isp.net"}
+    postal.core> (send-message {:host "mail.isp.net"}
                                {:from "me@draines.com"
                                 :to "foo@example.com"
                                 :subject "Hi!"
@@ -141,10 +145,10 @@ as the first value in the map sequence. That way you can for example create an
 HTML-Email that displays a text message as fallback in email clients that do not
 support (or suppress) HTML-mails:
 
-    postal.core> (send-message ^{:host "localhost"
-                                 :port 2500
-                                 :user "user@localhost"
-                                 :pass "somePassword"}
+    postal.core> (send-message {:host "localhost"
+                                :port 2500
+                                :user "user@localhost"
+                                :pass "somePassword"}
                            {:from "jon-doe@example.com"
                             :to "jane-doe@example.com"
                             :subject "multipart/alternative test"
@@ -159,7 +163,7 @@ support (or suppress) HTML-mails:
 
 #### UTF-8
 
-Postal uses JavaMail under the covers, which defaults to charset
+Postal uses JavaMail underneath, which defaults to charset
 `us-ascii`. To set the charset, set the `:type`, like `"text/html; charset=utf-8"`.
 
 #### Message ID
@@ -227,4 +231,5 @@ Sam Ritchie
 
 ## License
 
-Postal is (c) 2009-2013 Andrew A. Raines and released under the MIT license.
+Postal is (c) 2009-2014 Andrew A. Raines and released under the MIT
+license.
