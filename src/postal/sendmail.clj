@@ -55,7 +55,7 @@
      :error e
      :message message}))
 
-(defn sendmail-find []
+(def sendmail
   (if-let [SENDMAIL (System/getenv "SENDMAIL")]
     SENDMAIL
     (first (filter #(.isFile (java.io.File. ^String %)) sendmails))))
@@ -66,7 +66,7 @@
 (defn sendmail-send [msg]
   (let [mail (sanitize (message->str msg))
         cmd (concat
-             [(sendmail-find) (format "-f %s" (sender msg))]
+             [sendmail (format "-f %s" (sender msg))]
              (recipients msg))
         pb (ProcessBuilder. cmd)
         p (.start pb)
