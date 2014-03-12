@@ -45,7 +45,7 @@
          (catch Exception e
            {:code 99 :error (class e) :message (.getMessage e)}))))
   ([args & msgs]
-     (let [{:keys [host port user pass sender ssl]
+     (let [{:keys [host port user pass sender ssl debug]
             :or {host "localhost"}} args
             port (if (nil? port)
                    (if ssl 465 25)
@@ -54,5 +54,5 @@
             args (merge args {:port port
                               :proto proto})
             session (doto (Session/getInstance (make-props sender args))
-                      (.setDebug false))]
+                      (.setDebug (if debug true false)))]
        (smtp-send* session proto args msgs))))
