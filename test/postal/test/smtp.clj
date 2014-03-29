@@ -25,17 +25,20 @@
   (:use [clojure.test])
   (:require [postal.smtp :as smtp] :reload))
 
-(defn props [attrs]
-  (let [msg {:from "foo@bar.dom"
-             :to "baz@bar.dom"
-             :subject "Test"
-             :body "Hello."}]
-    (binding [smtp/smtp-send* (fn [& args] args)]
-      (->>
-       (smtp/smtp-send attrs [msg])
-       first
-       .getProperties
-       (into {})))))
+(defn props
+  ([attrs]
+     (let [msg {:from "foo@bar.dom"
+                :to "baz@bar.dom"
+                :subject "Test"
+                :body "Hello."}]
+       (props attrs msg)))
+  ([attrs msg]
+     (binding [smtp/smtp-send* (fn [& args] args)]
+       (->>
+        (smtp/smtp-send attrs [msg])
+        first
+        .getProperties
+        (into {})))))
 
 (defmacro is-props [input want]
   `(is (= (props ~input) ~want)))
@@ -66,3 +69,19 @@
             {"mail.smtp.port" 25
              "mail.smtp.auth" "false"
              "mail.smtp.host" "smtp.bar.dom"}))
+
+(defmacro is-sender [expected props]
+  `(is (= ~expected (get ~props "mail.smtp.from"))))
+
+(deftest test-sender
+  (let [attrs-with {:sender "attrs-sender@bar.dom"}
+        msg-with {:sender "msg-sender@bar.dom"
+                  :from "foo@bar.dom"
+                  :to "baz@bar.dom"
+                  :subject "Test"
+                  :body "Hello."}
+        attrs-without (dissoc attrs-with :sender)
+        msg-without (dissoc msg-with :sender)]
+    (is-sender "attrs-sender@bar.dom" (props attrs-with    msg-without))
+    (is-sender "msg-sender@bar.dom"   (props attrs-with    msg-with))
+    (is-sender "msg-sender@bar.dom"   (props attrs-without msg-with))))
