@@ -225,3 +225,12 @@
             :body "Where is that message ID!"
             :user-agent "foo/1.0"})]
     (is (.contains m "User-Agent: foo"))))
+
+(deftest test-sender
+  (let [m (message->str
+           {:sender "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body "Test!"})]
+    (is (.contains m "From: foo@bar.dom"))
+    (is (not (.contains m "sender:")))))
