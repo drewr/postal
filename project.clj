@@ -1,6 +1,6 @@
 (defproject com.draines/postal "1.11.1"
   :repositories {"java.net" "http://download.java.net/maven/2"}
-  :dependencies [[commons-codec "1.7"]
+  :dependencies [[commons-codec "1.9"]
                  [javax.mail/mail "1.4.4"
                   :exclusions [javax.activation/activation]]]
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.5.1"]]}
