@@ -192,6 +192,9 @@ Supply `:recipients` to override `:to`, `:cc`, and `:bcc`.
                                 :recipients ["member1@foo.dom" "member2@another.dom"]
                                 :subject "An announcement to all members!"
                                 :body "Regards."}
+                                
+Note that some SMTP services - like Postmark - don't accept this and will silently
+rewrite the message headers to match the given recipients.
 
 #### User Agent
 

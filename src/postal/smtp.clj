@@ -27,6 +27,10 @@
   (:import [javax.mail Transport Session]
            [javax.mail.internet InternetAddress MimeMessage]))
 
+(defn ^:dynamic smtp-connect*
+  [^Transport transport ^String host ^String port ^String user ^String pass]
+  (.connect transport host port user pass))
+
 (defn ^:dynamic smtp-send-single*
   [^Transport transport ^MimeMessage msg recipients]
   (.sendMessage transport msg recipients))
@@ -35,7 +39,7 @@
                             {:keys [host port user pass]} msgs]
   (assert (or (and (nil? user) (nil? pass)) (and user pass)))
   (with-open [transport (.getTransport session proto)]
-    (.connect transport host port user pass)
+    (smtp-connect* transport host port user pass)
     (doseq [msg msgs]
       (let [jmsg (make-jmessage msg session)
             recipients (if (empty? (:recipients msg))
