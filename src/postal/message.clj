@@ -37,8 +37,10 @@
 (declare make-jmessage)
 
 (defn recipients [msg]
-  (let [^javax.mail.Message jmsg (make-jmessage msg)]
-    (map str (.getAllRecipients jmsg))))
+  (map str
+       (if-let [recipients (:recipients msg)]
+         recipients
+         (.getAllRecipients (make-jmessage msg)))))
 
 (defn sender [msg]
   (or (:sender msg) (:from msg)))
@@ -156,7 +158,7 @@
   ([msg session]
      (let [standard [:from :reply-to :to :cc :bcc
                      :date :subject :body :message-id
-                     :user-agent]
+                     :user-agent :recipients]
            charset (or (:charset msg) default-charset)
            jmsg (proxy [MimeMessage] [session]
                   (updateMessageID []

@@ -225,3 +225,29 @@
             :body "Where is that message ID!"
             :user-agent "foo/1.0"})]
     (is (.contains m "User-Agent: foo"))))
+
+(deftest test-recipients
+  (let [r (recipients
+           {:from "fee@bar.dom"
+            :to "Foo Bar <foo@bar.dom>"
+            :cc ["baz@bar.dom" "Quux <quux@bar.dom>"]
+            :subject "Test"
+            :body "Test!"
+            :charset "us-ascii"})]
+    (is (.contains r "Foo Bar <foo@bar.dom>"))
+    (is (.contains r "baz@bar.dom"))
+    (is (.contains r "Quux <quux@bar.dom>"))))
+
+(deftest test-recipients-with-recipients-given
+  (let [r (recipients
+           {:from "fee@bar.dom"
+            :to "Foo Bar <foo@bar.dom>"
+            :cc ["baz@bar.dom" "Quux <quux@bar.dom>"]
+            :recipients ["recip1@r.dom" "Recip Two <recip2@r.dom>"]
+            :subject "Test"
+            :body "Test!"
+            :charset "us-ascii"})]
+    (is (.contains r "recip1@r.dom"))
+    (is (.contains r "Recip Two <recip2@r.dom>"))
+    (is (not (.contains r "Foo Bar <foo@bar.dom>")))
+    (is (not (.contains r "Quux <quux@bar.dom>")))))

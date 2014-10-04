@@ -22,19 +22,27 @@
 ;; OTHER DEALINGS IN THE SOFTWARE.
 
 (ns postal.smtp
-  (:use [postal.message :only [make-jmessage]]
+  (:use [postal.message :only [make-jmessage make-addresses]]
         [postal.support :only [make-props]])
-  (:import [javax.mail Transport Session]))
+  (:import [javax.mail Transport Session]
+           [javax.mail.internet InternetAddress MimeMessage]))
+
+(defn ^:dynamic smtp-send-single*
+  [^Transport transport ^MimeMessage msg recipients]
+  (.sendMessage transport msg recipients))
 
 (defn ^:dynamic smtp-send* [^Session session ^String proto
                             {:keys [host port user pass]} msgs]
   (assert (or (and (nil? user) (nil? pass)) (and user pass)))
   (with-open [transport (.getTransport session proto)]
     (.connect transport host port user pass)
-    (let [jmsgs (map #(make-jmessage % session) msgs)]
-      (doseq [^javax.mail.Message jmsg jmsgs]
-        (.sendMessage transport jmsg (.getAllRecipients jmsg)))
-      {:code 0 :error :SUCCESS :message "messages sent"})))
+    (doseq [msg msgs]
+      (let [jmsg (make-jmessage msg session)
+            recipients (if (empty? (:recipients msg))
+                         (.getAllRecipients jmsg)
+                         (make-addresses (:recipients msg) (:charset msg)))]
+        (smtp-send-single* transport jmsg recipients))))
+  {:code 0 :error :SUCCESS :message "messages sent"})
 
 (defn smtp-send
   ([msg]

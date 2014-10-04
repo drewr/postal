@@ -179,6 +179,19 @@ its randomness and only customize the hostname.
      :subject "Message IDs!"
      :body "Regards."
      :message-id #(postal.support/message-id "foo.bar.dom")}
+     
+#### Mail forwarding
+
+If you're forwarding a mail it is possible to specify which recipients
+will actually receive the mail regardless of what is given in the header:
+Supply `:recipients` to override `:to`, `:cc`, and `:bcc`.
+
+    postal.core> (send-message {:from "foo@bar.dom"
+                                :to "mailinglist@bar.dom"
+                                :cc "another@another.dom"
+                                :recipients ["member1@foo.dom" "member2@another.dom"]
+                                :subject "An announcement to all members!"
+                                :body "Regards."}
 
 #### User Agent
 
@@ -229,6 +242,7 @@ Paul Stadig
 Phil Hagelberg       
 Roman Flammer       
 Sam Ritchie       
+Øystein Jakobsen       
 
 ## License
 
