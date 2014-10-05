@@ -22,7 +22,7 @@
 ;; OTHER DEALINGS IN THE SOFTWARE.
 
 (ns postal.sendmail
-  (:use [postal.message :only [message->str sender recipients]]))
+  (:use [postal.message :only [message->str sender make-jmessage-with-recipients]]))
 
 (def sendmails ["/usr/lib/sendmail"
                 "/usr/sbin/sendmail"
@@ -64,10 +64,11 @@
   (.replaceAll text "\r\n" (System/getProperty "line.separator")))
 
 (defn sendmail-send [msg]
-  (let [mail (sanitize (message->str msg))
+  (let [{:keys [jmsg recipients]} (make-jmessage-with-recipients msg)
+        mail (sanitize (message->str jmsg))
         cmd (concat
              [(sendmail-find) (format "-f %s" (sender msg))]
-             (recipients msg))
+             (map str recipients))
         pb (ProcessBuilder. cmd)
         p (.start pb)
         smtp (java.io.PrintStream. (.getOutputStream p))]

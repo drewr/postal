@@ -22,7 +22,7 @@
 ;; OTHER DEALINGS IN THE SOFTWARE.
 
 (ns postal.smtp
-  (:use [postal.message :only [make-jmessage make-addresses]]
+  (:use [postal.message :only [make-jmessage-with-recipients make-addresses]]
         [postal.support :only [make-props]])
   (:import [javax.mail Transport Session]
            [javax.mail.internet InternetAddress MimeMessage]))
@@ -32,8 +32,10 @@
   (.connect transport host port user pass))
 
 (defn ^:dynamic smtp-send-single*
-  [^Transport transport ^MimeMessage msg recipients]
-  (.sendMessage transport msg recipients))
+  ([^Transport transport ^MimeMessage jmsg recipients]
+    (.sendMessage transport jmsg recipients))
+  ([^MimeMessage jmsg recipients]
+    (Transport/send jmsg recipients)))
 
 (defn ^:dynamic smtp-send* [^Session session ^String proto
                             {:keys [host port user pass]} msgs]
@@ -41,18 +43,15 @@
   (with-open [transport (.getTransport session proto)]
     (smtp-connect* transport host port user pass)
     (doseq [msg msgs]
-      (let [jmsg (make-jmessage msg session)
-            recipients (if (empty? (:recipients msg))
-                         (.getAllRecipients jmsg)
-                         (make-addresses (:recipients msg) (:charset msg)))]
+      (let [{:keys [jmsg recipients]} (make-jmessage-with-recipients msg session)]
         (smtp-send-single* transport jmsg recipients))))
   {:code 0 :error :SUCCESS :message "messages sent"})
 
 (defn smtp-send
   ([msg]
-     (let [jmsg (make-jmessage msg)]
+     (let [{:keys [jmsg recipients]} (make-jmessage-with-recipients msg)]
        (try
-         (Transport/send jmsg)
+         (smtp-send-single* jmsg recipients)
          {:code 0 :error :SUCCESS :message "message sent"}
          (catch Exception e
            {:code 99 :error (class e) :message (.getMessage e)}))))

@@ -34,13 +34,7 @@
 
 (def default-charset "utf-8")
 
-(declare make-jmessage)
-
-(defn recipients [msg]
-  (map str
-       (if-let [recipients (:recipients msg)]
-         recipients
-         (.getAllRecipients (make-jmessage msg)))))
+(declare make-jmessage-with-recipients)
 
 (defn sender [msg]
   (or (:sender msg) (:from msg)))
@@ -66,7 +60,7 @@
 (defn message->str [msg]
   (with-open [out (java.io.ByteArrayOutputStream.)]
     (let [^javax.mail.Message jmsg (if (instance? MimeMessage msg)
-                                     msg (make-jmessage msg))]
+                                     msg (:jmsg (make-jmessage-with-recipients msg)))]
       (.writeTo jmsg out)
       (str out))))
 
@@ -145,7 +139,7 @@
   (proxy [javax.mail.Authenticator] []
     (getPasswordAuthentication [] (PasswordAuthentication. user pass))))
 
-(defn make-jmessage
+(defn make-jmessage-with-recipients
   ([msg]
      (let [{:keys [sender from]} msg
            {:keys [user pass]} (meta msg)
@@ -154,7 +148,7 @@
                        (if user
                          (Session/getInstance props (make-auth user pass))
                          (Session/getInstance props)))]
-       (make-jmessage msg session)))
+       (make-jmessage-with-recipients msg session)))
   ([msg session]
      (let [standard [:from :reply-to :to :cc :bcc
                      :date :subject :body :message-id
@@ -179,7 +173,11 @@
          (.addHeader "User-Agent" (:user-agent msg (user-agent)))
          (add-extra! (apply dissoc msg standard))
          (add-body! (:body msg) charset)
-         (.saveChanges)))))
+         (.saveChanges))
+       (let [recipients (if (empty? (:recipients msg))
+                          (.getAllRecipients jmsg)
+                          (make-addresses (:recipients msg) charset))]
+         {:jmsg jmsg :recipients recipients}))))
 
 (defn make-fixture [from to & {:keys [tag]}]
   (let [uuid (str (UUID/randomUUID))

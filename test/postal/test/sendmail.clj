@@ -22,4 +22,4 @@
 ;; OTHER DEALINGS IN THE SOFTWARE.
 
 (ns postal.test.sendmail
-  (:use [postal.message :only [message->str sender recipients]]))
+  (:use [postal.message :only [message->str sender]]))
