@@ -66,3 +66,29 @@
             {"mail.smtp.port" 25
              "mail.smtp.auth" "false"
              "mail.smtp.host" "smtp.bar.dom"}))
+
+(defn recipients [msg]
+  (let [capture (atom [])]
+    (binding [smtp/smtp-connect* (fn [& _])
+              smtp/smtp-send-single* (fn [transport msg recipients] 
+                                       (reset! capture (mapv #(.getAddress %) recipients)))]
+      (smtp/smtp-send {} msg)
+      capture)))
+
+(defmacro is-recipients [input want]
+  `(is (= (deref (recipients ~input)) ~want)))
+
+(deftest t-recipients
+  (is-recipients {:from "foo@bar.dom"
+                  :to "baz@bar.dom"
+                  :cc ["foo@bar.dom"]
+                  :subject "Test"
+                  :body "Hello."}
+                 ["baz@bar.dom" "foo@bar.dom"])
+  (is-recipients {:from "foo@bar.dom"
+                  :to "baz@bar.dom"
+                  :cc ["foo@bar.dom"]
+                  :recipients ["another@another.dom"]
+                  :subject "Test"
+                  :body "Hello."}
+                 ["another@another.dom"]))

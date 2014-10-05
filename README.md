@@ -179,6 +179,24 @@ its randomness and only customize the hostname.
      :subject "Message IDs!"
      :body "Regards."
      :message-id #(postal.support/message-id "foo.bar.dom")}
+     
+#### Mail forwarding
+
+If you're forwarding a mail it is possible to specify which recipients
+will actually receive the mail regardless of what is given in the header:
+Supply `:recipients` to override `:to`, `:cc`, and `:bcc`. The mail will
+only be sent to those given in `:recipients` but to the recipients the mail
+will appear to have been sent to those given in `:to` and `:cc`.
+
+    postal.core> (send-message {:from "foo@bar.dom"
+                                :to "mailinglist@bar.dom"
+                                :cc "another@another.dom"
+                                :recipients ["member1@foo.dom" "member2@another.dom"]
+                                :subject "An announcement to all members!"
+                                :body "Regards."}
+                                
+Note that some SMTP service providers - like Postmark - don't accept this and will
+silently rewrite the message headers to match the given recipients.
 
 #### User Agent
 
@@ -229,6 +247,7 @@ Paul Stadig
 Phil Hagelberg       
 Roman Flammer       
 Sam Ritchie       
+Øystein Jakobsen       
 
 ## License
 
