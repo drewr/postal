@@ -184,7 +184,9 @@ its randomness and only customize the hostname.
 
 If you're forwarding a mail it is possible to specify which recipients
 will actually receive the mail regardless of what is given in the header:
-Supply `:recipients` to override `:to`, `:cc`, and `:bcc`.
+Supply `:recipients` to override `:to`, `:cc`, and `:bcc`. The mail will
+only be sent to those given in `:recipients` but to the recipients the mail
+will appear to have been sent to those given in `:to` and `:cc`.
 
     postal.core> (send-message {:from "foo@bar.dom"
                                 :to "mailinglist@bar.dom"
@@ -193,8 +195,8 @@ Supply `:recipients` to override `:to`, `:cc`, and `:bcc`.
                                 :subject "An announcement to all members!"
                                 :body "Regards."}
                                 
-Note that some SMTP services - like Postmark - don't accept this and will silently
-rewrite the message headers to match the given recipients.
+Note that some SMTP service providers - like Postmark - don't accept this and will
+silently rewrite the message headers to match the given recipients.
 
 #### User Agent
 
