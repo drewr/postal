@@ -1,4 +1,4 @@
-(defproject com.draines/postal "1.11.1"
+(defproject com.draines/postal "1.11.2"
   :repositories {"java.net" "http://download.java.net/maven/2"}
   :dependencies [[commons-codec "1.9"]
                  [javax.mail/mail "1.4.4"
