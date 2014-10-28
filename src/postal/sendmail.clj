@@ -55,7 +55,7 @@
      :error e
      :message message}))
 
-(defn sendmail-find []
+(defn find-sendmail []
   (if-let [SENDMAIL (System/getenv "SENDMAIL")]
     SENDMAIL
     (first (filter #(.isFile (java.io.File. ^String %)) sendmails))))
@@ -63,15 +63,18 @@
 (defn sanitize [^String text]
   (.replaceAll text "\r\n" (System/getProperty "line.separator")))
 
-(defn sendmail-send [msg]
-  (let [mail (sanitize (message->str msg))
-        cmd (concat
-             [(sendmail-find) (format "-f %s" (sender msg))]
-             (recipients msg))
-        pb (ProcessBuilder. cmd)
-        p (.start pb)
-        smtp (java.io.PrintStream. (.getOutputStream p))]
-    (.print smtp mail)
-    (.close smtp)
-    (.waitFor p)
-    (error (.exitValue p))))
+(defn sendmail-send
+  ([msg]
+     (sendmail-send (find-sendmail)))
+  ([msg sendmail]
+      (let [mail (sanitize (message->str msg))
+            cmd (concat
+                 [sendmail (format "-f %s" (sender msg))]
+                 (recipients msg))
+            pb (ProcessBuilder. cmd)
+            p (.start pb)
+            smtp (java.io.PrintStream. (.getOutputStream p))]
+        (.print smtp mail)
+        (.close smtp)
+        (.waitFor p)
+        (error (.exitValue p)))))
