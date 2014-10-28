@@ -1,3 +1,9 @@
+1.11.2
+
+* Add sendmail parameter to sendmail-send
+* commons-codec 1.9
+* Encourage two-arg send-message
+
 1.11.1
 
 * Apply charset to subject
