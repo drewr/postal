@@ -65,7 +65,7 @@
 
 (defn sendmail-send
   ([msg]
-     (sendmail-send (find-sendmail)))
+     (sendmail-send msg (find-sendmail)))
   ([msg sendmail]
       (let [mail (sanitize (message->str msg))
             cmd (concat
