@@ -217,7 +217,7 @@ Andre Branco
 Andy Fingerhut       
 Christoph Henkelmann       
 Colin Jones       
-Dante Briones
+Dante Briones      
 Dimas Guardado       
 Gerrit Hentschel       
 J. David Lowe       
