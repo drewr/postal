@@ -1,3 +1,7 @@
+1.11.3
+
+* Fix infinite loop in sendmail-send
+
 1.11.2
 
 * Add sendmail parameter to sendmail-send
