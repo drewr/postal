@@ -45,8 +45,8 @@
 
 (defn make-address
   ([^String addr ^String charset]
-     (let [a (try (InternetAddress. addr)
-                  (catch Exception _))]
+     (let [^InternetAddress a (try (InternetAddress. addr)
+                                   (catch Exception _))]
        (if a
          (InternetAddress. (.getAddress a)
                            (.getPersonal a)
@@ -134,9 +134,9 @@
     (.addHeader jmsg (if (keyword? n) (name n) n) v))
   jmsg)
 
-(defn add-body! [^javax.mail.Message jmsg body charset]
+(defn add-body! [^javax.mail.Message jmsg body]
   (if (string? body)
-    (doto jmsg (.setText body charset))
+    (doto jmsg (.setText body))
     (doto jmsg (add-multipart! body))))
 
 (defn make-auth [user pass]
@@ -150,7 +150,8 @@
            props (make-props (or sender from) (meta msg))
            session (or (:session (meta msg))
                        (if user
-                         (Session/getInstance props (make-auth user pass))
+                         (Session/getInstance props
+                                              (make-auth user pass))
                          (Session/getInstance props)))]
        (make-jmessage msg session)))
   ([msg session]
@@ -158,10 +159,10 @@
                      :date :subject :body :message-id
                      :user-agent]
            charset (or (:charset msg) default-charset)
-           jmsg (proxy [MimeMessage] [session]
+           jmsg (proxy [MimeMessage] [^Session session]
                   (updateMessageID []
                     (.setHeader
-                     this
+                     ^MimeMessage this
                      "Message-ID" ((:message-id msg message-id)))))]
        (doto jmsg
          (add-recipients! Message$RecipientType/TO (:to msg) charset)
@@ -176,7 +177,7 @@
          (.setSentDate (or (:date msg) (make-date)))
          (.addHeader "User-Agent" (:user-agent msg (user-agent)))
          (add-extra! (apply dissoc msg standard))
-         (add-body! (:body msg) charset)
+         (add-body! (:body msg))
          (.saveChanges)))))
 
 (defn make-fixture [from to & {:keys [tag]}]
