@@ -65,4 +65,12 @@
              :pass nil}
             {"mail.smtp.port" 25
              "mail.smtp.auth" "false"
-             "mail.smtp.host" "smtp.bar.dom"}))
+             "mail.smtp.host" "smtp.bar.dom"})
+  (is-props {:host "smtp.bar.dom"
+             :localaddress "1.2.3.4"
+             :localhost "mail.bar.dom"}
+            {"mail.smtp.port" 25
+             "mail.smtp.auth" "false"
+             "mail.smtp.host" "smtp.bar.dom"
+             "mail.smtp.localaddress" "1.2.3.4"
+             "mail.smtp.localhost" "mail.bar.dom"}))
