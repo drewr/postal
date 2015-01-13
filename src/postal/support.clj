@@ -26,13 +26,27 @@
   (:import (java.util Properties Random)
            (org.apache.commons.codec.binary Base64)))
 
+(def boolean-props
+  #{:allow8bitmime
+    :auth :auth.login.disable :auth.plain.disable :auth.digest-md5.disable :auth.ntlm.disable
+    :ehlo
+    :noop.strict
+    :quitwait
+    :reportsuccess
+    :sasl.enable :sasl.usecanonicalhostname
+    :sendpartial
+    :socketFactory.fallback
+    :ssl.enable :ssl.checkserveridentity
+    :starttls.enable :starttls.required
+    :userset})
+
 (defmacro do-when
   [arg condition & body]
   `(when ~condition
      (doto ~arg ~@body)))
 
 (defn prop-names [sender {:keys [user ssl] :as params}]
-  (let [prop-map {:tls "mail.smtp.starttls.enable"}
+  (let [prop-map {:tls :starttls.enable}
         defaults {:host "not.provided"
                   :port (if ssl 465 25)
                   :auth (boolean user)}]
@@ -42,7 +56,9 @@
                              (dissoc params :pass :ssl :proto))
                 :when (not (nil? v))
                 :let [k (if (prop-map k) (prop-map k) k)
-                      v (if (instance? Boolean v) (if v "true" "false") v)]]
+                      v (if (or (instance? Boolean v) (boolean-props k))
+                          (if v "true" "false")
+                          v)]]
             (if (keyword? k)
               [(str "mail.smtp." (name k)) v]
               [k v])))))
