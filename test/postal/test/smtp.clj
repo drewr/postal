@@ -55,6 +55,15 @@
   (is-props {:host "smtp.bar.dom"
              :user "foo"
              :pass "pass"
+             :tls :y}
+            {"mail.smtp.user" "foo"
+             "mail.smtp.port" 25
+             "mail.smtp.auth" "true"
+             "mail.smtp.starttls.enable" "true"
+             "mail.smtp.host" "smtp.bar.dom"})
+  (is-props {:host "smtp.bar.dom"
+             :user "foo"
+             :pass "pass"
              :ssl :y}
             {"mail.smtp.user" "foo"
              "mail.smtp.port" 465
