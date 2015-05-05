@@ -31,14 +31,26 @@
   `(when ~condition
      (doto ~arg ~@body)))
 
-(defn make-props [sender {:keys [host port user tls]}]
+(defn- add-javamail-props
+  "Any key matching mail.smtp.* is added to the properties"
+  [properties raw-props]
+  (reduce (fn [p [k v]]
+            (if (re-find #"mail\.smtp\..+" (name k))
+              (do (.put p (name k) (str v))
+                  p)
+              p))
+          properties
+          raw-props))
+
+(defn make-props [sender {:keys [host port user tls] :as props}]
   (doto (Properties.)
     (.put "mail.smtp.host" (or host "not.provided"))
     (.put "mail.smtp.port" (or port "25"))
     (.put "mail.smtp.auth" (if user "true" "false"))
     (do-when sender (.put "mail.smtp.from" sender))
     (do-when user (.put "mail.smtp.user" user))
-    (do-when tls  (.put "mail.smtp.starttls.enable" "true"))))
+    (do-when tls  (.put "mail.smtp.starttls.enable" "true"))
+    (add-javamail-props props)))
 
 (defn hostname []
   (.getHostName (java.net.InetAddress/getLocalHost)))

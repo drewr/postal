@@ -65,4 +65,15 @@
              :pass nil}
             {"mail.smtp.port" 25
              "mail.smtp.auth" "false"
-             "mail.smtp.host" "smtp.bar.dom"}))
+             "mail.smtp.host" "smtp.bar.dom"})
+  (is-props {:host "smtp.bar.dom"
+             :user nil
+             :pass nil
+             :mail.smtp.foo "bar"
+             :mail.smtp.baz "buzz"
+             :this.is "ignored"}
+            {"mail.smtp.port" 25
+             "mail.smtp.auth" "false"
+             "mail.smtp.host" "smtp.bar.dom"
+             "mail.smtp.foo" "bar"
+             "mail.smtp.baz" "buzz"}))
