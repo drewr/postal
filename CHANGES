@@ -1,3 +1,15 @@
+<<<<<<< HEAD
+=======
+1.11.4
+
+* Support proper URLs for attachments so we're not limited to Files
+* Add generic support javamail setting strings
+
+1.11.3
+
+* Fix infinite loop in sendmail-send
+
+>>>>>>> 52ad91a... Update changelog with recent additions
 1.11.2
 
 * Add sendmail parameter to sendmail-send
