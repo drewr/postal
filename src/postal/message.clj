@@ -176,9 +176,8 @@
          (add-recipients! Message$RecipientType/TO (:to msg) charset)
          (add-recipients! Message$RecipientType/CC (:cc msg) charset)
          (add-recipients! Message$RecipientType/BCC (:bcc msg) charset)
-         (.setFrom (if-let [sender (:sender msg)]
-                     (make-address sender charset)
-                     (make-address (:from msg) charset)))
+         (.setFrom (let [{:keys [from sender]} msg]
+                     (make-address (or from sender) charset)))
          (.setReplyTo (when-let [reply-to (:reply-to msg)]
                         (make-addresses reply-to charset)))
          (.setSubject (:subject msg) charset)
