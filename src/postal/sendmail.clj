@@ -68,9 +68,9 @@
      (sendmail-send msg (find-sendmail)))
   ([msg sendmail]
       (let [mail (sanitize (message->str msg))
-            cmd (concat
-                 [sendmail (format "-f %s" (sender msg))]
-                 (recipients msg))
+            ^java.util.List cmd (concat
+                                 [sendmail (format "-f %s" (sender msg))]
+                                 (recipients msg))
             pb (ProcessBuilder. cmd)
             p (.start pb)
             smtp (java.io.PrintStream. (.getOutputStream p))]
