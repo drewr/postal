@@ -112,6 +112,8 @@
 
       (when (:content-type part)
         (.setHeader attachment-part "Content-Type" (:content-type part)))
+      (when (:content-encoding part)
+        (.setHeader attachment-part "Content-Transfer-Encoding" (:content-encoding part)))
       (when (:content-id part)
         (.setContentID attachment-part (str "<" (:content-id part) ">")))
       (when (:file-name part)
