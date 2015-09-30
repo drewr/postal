@@ -119,8 +119,13 @@
       (when (:description part)
         (.setDescription attachment-part (:description part)))
       attachment-part)
-    (doto (javax.mail.internet.MimeBodyPart.)
-      (.setContent (:content part) (:type part)))))
+    (let [mime-part (javax.mail.internet.MimeBodyPart.)]
+      (.setContent mime-part (:content part) (:type part))
+      (when (:file-name part)
+        (.setFileName mime-part (:file-name part)))
+      (when (:description part)
+        (.setDescription mime-part (:description part)))
+      mime-part)))
 
 (defn eval-multipart [parts]
   (let [;; multiparts can have a number of different types: mixed,
