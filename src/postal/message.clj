@@ -165,7 +165,7 @@
   ([msg session]
      (let [standard [:from :reply-to :to :cc :bcc
                      :date :subject :body :message-id
-                     :user-agent]
+                     :user-agent :sender]
            charset (or (:charset msg) default-charset)
            jmsg (proxy [MimeMessage] [session]
                   (updateMessageID []
