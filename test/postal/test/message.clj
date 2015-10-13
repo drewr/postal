@@ -56,6 +56,22 @@
     (is (.contains m "Content-Type: text/html"))
     (is (.contains m "some html"))))
 
+(deftest test-multipart-with-custom-name-and-description
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body [{:type "text/plain"
+                    :content "See attached"}
+                   {:type "text/csv"
+                    :file-name "data.csv"
+                    :description "Some interesting data"
+                    :content "x,2x\n1,2,\n2,4\n"}]})]
+    (is (.contains m "See attached"))
+    (is (.contains m "data.csv"))
+    (is (.contains m "Some interesting data"))
+    (is (.contains m "x,2x\n1,2,\n2,4\n"))))
+
 (deftest test-inline
   (let [f (doto (java.io.File/createTempFile "_postal-" ".txt"))
         _ (doto (java.io.PrintWriter. f)
