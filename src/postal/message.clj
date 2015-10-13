@@ -24,7 +24,6 @@
 (ns postal.message
   (:use [clojure.set :only [difference]]
         [clojure.java.io :only [as-url as-file]]
-        [pallet.thread-expr :refer [when->]]
         [postal.date :only [make-date]]
         [postal.support :only [do-when make-props message-id user-agent]])
   (:import [java.util UUID]
@@ -110,19 +109,19 @@
         (.setDataHandler (DataHandler. url))
         (.setFileName (re-find #"[^/]+$" (.getPath url)))
         (.setDisposition (name (:type part)))
-        (when-> (:content-type part)
+        (cond-> (:content-type part)
                 (.setHeader "Content-Type" (:content-type part)))
-        (when-> (:content-id part)
+        (cond-> (:content-id part)
                 (.setContentID (str "<" (:content-id part) ">")))
-        (when-> (:file-name part)
+        (cond-> (:file-name part)
                 (.setFileName (:file-name part)))
-        (when-> (:description part)
+        (cond-> (:description part)
                 (.setDescription (:description part)))))
     (doto (javax.mail.internet.MimeBodyPart.)
       (.setContent (:content part) (:type part))
-      (when-> (:file-name part)
+      (cond-> (:file-name part)
               (.setFileName (:file-name part)))
-      (when-> (:description part)
+      (cond-> (:description part)
               (.setDescription (:description part))))))
 
 (defn eval-multipart [parts]
