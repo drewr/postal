@@ -24,26 +24,43 @@
 (ns postal.smtp
   (:use [postal.message :only [make-jmessage]]
         [postal.support :only [make-props]])
-  (:import [javax.mail Transport Session]))
+  (:require [clojure.core.async :as a :refer [put!]])
+  (:import [javax.mail Transport Session]
+           [javax.mail.event TransportListener]))
 
-(defn ^:dynamic smtp-send* [^Session session ^String proto
-                            {:keys [host port user pass]} msgs]
+(defn listener-channel [^Transport transport]
+  (let [c (a/chan)
+        listener (reify TransportListener
+                   (messageDelivered [this e]
+                     (put! c {:code 0 :error :SUCCESS :message "messages sent"}))
+                   (messageNotDelivered [this e]
+                     (put! c {:code 99
+                              :error (class e)
+                              :message (.getMessage e)}))
+                   (messagePartiallyDelivered [this e]
+                     (put! c {:code 0 :error :SUCCESS :message "messages sent"})))]
+    (.addTransportListener transport listener)
+    c))
+
+(defn ^:dynamic smtp-send*
+  [^Session session ^String proto {:keys [host port user pass]} msgs]
   (assert (or (and (nil? user) (nil? pass)) (and user pass)))
   (with-open [transport (.getTransport session proto)]
     (.connect transport host port user pass)
-    (let [jmsgs (map #(make-jmessage % session) msgs)]
-      (doseq [^javax.mail.Message jmsg jmsgs]
-        (.sendMessage transport jmsg (.getAllRecipients jmsg)))
-      {:code 0 :error :SUCCESS :message "messages sent"})))
+    (let [c (listener-channel transport)
+          jmsgs (map #(make-jmessage % session) msgs)]
+      (a/thread (doseq [^javax.mail.Message jmsg jmsgs]
+                  (.sendMessage transport jmsg (.getAllRecipients jmsg))))
+      c)))
 
 (defn smtp-send
   ([msg]
      (let [jmsg (make-jmessage msg)]
-       (try
-         (Transport/send jmsg)
-         {:code 0 :error :SUCCESS :message "message sent"}
-         (catch Exception e
-           {:code 99 :error (class e) :message (.getMessage e)}))))
+       (a/thread (try
+                   (Transport/send jmsg)
+                   {:code 0 :error :SUCCESS :message "message sent"}
+                   (catch Exception e
+                     {:code 99 :error (class e) :message (.getMessage e)})))))
   ([args & msgs]
      (let [{:keys [host port user pass sender ssl]
             :or {host "localhost"}} args
