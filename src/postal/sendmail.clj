@@ -69,7 +69,7 @@
   ([msg sendmail]
       (let [mail (sanitize (message->str msg))
             cmd (concat
-                 [sendmail (format "-f %s" (sender msg))]
+                 [sendmail "-f" (sender msg)]
                  (recipients msg))
             pb (ProcessBuilder. cmd)
             p (.start pb)
