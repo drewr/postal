@@ -9,4 +9,4 @@
   :dependencies [[commons-codec "1.9"]
                  [javax.mail/mail "1.4.4"
                   :exclusions [javax.activation/activation]]]
-  :profiles {:dev {:dependencies [[org.clojure/clojure "1.5.1"]]}})
+  :profiles {:dev {:dependencies [[org.clojure/clojure "1.7.0"]]}})
