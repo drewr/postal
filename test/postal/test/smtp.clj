@@ -44,14 +44,21 @@
   (is-props {:host "smtp.bar.dom"}
             {"mail.smtp.port" 25
              "mail.smtp.auth" "false"
-             "mail.smtp.host" "smtp.bar.dom"})
+             "mail.smtp.host" "smtp.bar.dom"
+             "mail.smtps.port" 25
+             "mail.smtps.auth" "false"
+             "mail.smtps.host" "smtp.bar.dom"})
   (is-props {:host "smtp.bar.dom"
              :user "foo"
              :pass "pass"}
             {"mail.smtp.user" "foo"
              "mail.smtp.port" 25
              "mail.smtp.auth" "true"
-             "mail.smtp.host" "smtp.bar.dom"})
+             "mail.smtp.host" "smtp.bar.dom"
+             "mail.smtps.user" "foo"
+             "mail.smtps.port" 25
+             "mail.smtps.auth" "true"
+             "mail.smtps.host" "smtp.bar.dom"})
   (is-props {:host "smtp.bar.dom"
              :user "foo"
              :pass "pass"
@@ -60,7 +67,12 @@
              "mail.smtp.port" 25
              "mail.smtp.auth" "true"
              "mail.smtp.starttls.enable" "true"
-             "mail.smtp.host" "smtp.bar.dom"})
+             "mail.smtp.host" "smtp.bar.dom"
+             "mail.smtps.user" "foo"
+             "mail.smtps.port" 25
+             "mail.smtps.auth" "true"
+             "mail.smtps.starttls.enable" "true"
+             "mail.smtps.host" "smtp.bar.dom"})
   (is-props {:host "smtp.bar.dom"
              :user "foo"
              :pass "pass"
@@ -68,13 +80,20 @@
             {"mail.smtp.user" "foo"
              "mail.smtp.port" 465
              "mail.smtp.auth" "true"
-             "mail.smtp.host" "smtp.bar.dom"})
+             "mail.smtp.host" "smtp.bar.dom"
+             "mail.smtps.user" "foo"
+             "mail.smtps.port" 465
+             "mail.smtps.auth" "true"
+             "mail.smtps.host" "smtp.bar.dom"})
   (is-props {:host "smtp.bar.dom"
              :user nil
              :pass nil}
             {"mail.smtp.port" 25
              "mail.smtp.auth" "false"
-             "mail.smtp.host" "smtp.bar.dom"})
+             "mail.smtp.host" "smtp.bar.dom"
+             "mail.smtps.port" 25
+             "mail.smtps.auth" "false"
+             "mail.smtps.host" "smtp.bar.dom"})
   (is-props {:host "smtp.bar.dom"
              :localaddress "1.2.3.4"
              :localhost "mail.bar.dom"}
@@ -82,12 +101,20 @@
              "mail.smtp.auth" "false"
              "mail.smtp.host" "smtp.bar.dom"
              "mail.smtp.localaddress" "1.2.3.4"
-             "mail.smtp.localhost" "mail.bar.dom"})
+             "mail.smtp.localhost" "mail.bar.dom"
+             "mail.smtps.port" 25
+             "mail.smtps.auth" "false"
+             "mail.smtps.host" "smtp.bar.dom"
+             "mail.smtps.localaddress" "1.2.3.4"
+             "mail.smtps.localhost" "mail.bar.dom"})
   (is-props {:host "smtp.bar.dom"
              "mail.smtp.localaddress" "1.2.3.4"
              "mail.smtp.localhost" "mail.bar.dom"}
             {"mail.smtp.port" 25
              "mail.smtp.auth" "false"
              "mail.smtp.host" "smtp.bar.dom"
+             "mail.smtps.port" 25
+             "mail.smtps.auth" "false"
+             "mail.smtps.host" "smtp.bar.dom"
              "mail.smtp.localaddress" "1.2.3.4"
              "mail.smtp.localhost" "mail.bar.dom"}))
