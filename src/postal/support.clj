@@ -50,18 +50,19 @@
         defaults {:host "not.provided"
                   :port (if ssl 465 25)
                   :auth (boolean user)}]
-    (into {}
-          (for [[k v] (merge defaults
-                             (if sender {:from sender} {})
-                             (dissoc params :pass :ssl :proto))
-                :when (not (nil? v))
-                :let [k (if (prop-map k) (prop-map k) k)
-                      v (if (or (instance? Boolean v) (boolean-props k))
-                          (if v "true" "false")
-                          v)]]
-            (if (keyword? k)
-              [(str "mail.smtp." (name k)) v]
-              [k v])))))
+    (into {} (apply concat
+                    (for [[k v] (merge defaults
+                                       (if sender {:from sender} {})
+                                       (dissoc params :pass :ssl :proto))
+                          :when (not (nil? v))
+                          :let [k (if (prop-map k) (prop-map k) k)
+                                v (if (or (instance? Boolean v) (boolean-props k))
+                                    (if v "true" "false")
+                                    v)]]
+                      (if (keyword? k)
+                        [[(str "mail.smtp." (name k)) v]
+                         [(str "mail.smtps." (name k)) v]]
+                        [[k v]]))))))
 
 (defn make-props [sender params]
   (let [p (Properties.)]
