@@ -5,7 +5,7 @@
             :url "http://en.wikipedia.org/wiki/MIT_License"
             :distribution :repo
             :comments "Use at your own risk"}
-  :repositories {"java.net" "http://download.java.net/maven/2"}
+  :deploy-repositories [["releases" :clojars]]
   :dependencies [[commons-codec "1.9"]
                  [com.sun.mail/javax.mail "1.5.5"]
                  [javax.mail/javax.mail-api "1.5.5"]]
