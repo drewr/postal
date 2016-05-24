@@ -16,7 +16,7 @@ SSL.
 
 ### Dependencies
 
-* JavaMail 1.4.2 (in `lib/` after build)
+* JavaMail 1.5.5 (in `lib/` after build)
 
 ### Install
 
