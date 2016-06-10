@@ -1,3 +1,9 @@
+2.0.0
+
+* Update branching scheme
+* Add debug support on SMTP session
+* Support proper JavaMail SMTPS opts
+
 1.11.4
 
 * Support proper URLs for attachments so we're not limited to Files
