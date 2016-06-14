@@ -107,7 +107,9 @@
     (let [url (make-url (:content part))]
       (doto (javax.mail.internet.MimeBodyPart.)
         (.setDataHandler (DataHandler. url))
-        (.setFileName (re-find #"[^/]+$" (.getPath url)))
+        (.setFileName (:file-name part
+                                  (.toUpperCase
+                                   (str (java.util.UUID/randomUUID)))))
         (.setDisposition (name (:type part)))
         (cond-> (:content-type part)
                 (.setHeader "Content-Type" (:content-type part)))

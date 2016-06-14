@@ -22,10 +22,10 @@
 ;; OTHER DEALINGS IN THE SOFTWARE.
 
 (ns postal.test.message
-  (:use [postal.message]
-        [clojure.test :only [run-tests deftest is]]
-        [clojure.java.io :as io]
-        [postal.date :only [make-date]])
+  (:require [postal.message :refer :all]
+            [clojure.test :refer :all]
+            [clojure.java.io :as io]
+            [postal.date :only [make-date]])
   (:import [java.util Properties UUID]
            [javax.mail Session Message$RecipientType]
            [javax.mail.internet MimeMessage InternetAddress
@@ -89,43 +89,46 @@
   (let [f1 (doto (java.io.File/createTempFile "_postal-" ".txt"))
         _ (doto (java.io.PrintWriter. f1)
             (.println "tempfile contents") (.close))
-        f2 "/etc/resolv.conf"
+        f2 "project.clj"
         m (message->str
            {:from "foo@bar.dom"
             :to "baz@bar.dom"
             :subject "Test"
             :body [{:type :attachment
-                    :content f1}
+                    :content f1
+                    :file-name "tempfile"}
                    {:type :attachment
-                    :content f2}]})]
+                    :content f2
+                    :file-name "project.clj"}]})]
     (is (.contains m "tempfile"))
-    (is (.contains m (.getName f1)))
-    (is (.contains m "resolv.conf"))
+    (is (.contains m "project.clj"))
     (is (not (.contains m "etc")))
     (.delete f1)))
 
 (deftest test-attachments-from-url
   (let [jar (doto (java.io.File/createTempFile "_postal-" ".jar"))
         _ (with-open [zip-out (ZipOutputStream. (io/output-stream jar))
-                      zip-w (writer zip-out)]
+                      zip-w (io/writer zip-out)]
             (.putNextEntry zip-out (ZipEntry. "test-directory/test-filename.txt"))
             (binding [*out* zip-w]
               (println "tempfile contents")))
         jar-url (str "jar:file:" (.getPath jar) "!/test-directory/test-filename.txt")
-        f-url "file:///etc/resolv.conf"
+        f-file (io/file "project.clj")
         m (message->str
-            {:from "foo@bar.dom"
-             :to "baz@bar.dom"
-             :subject "Test"
-             :body [{:type :attachment
-                     :content jar-url}
-                    {:type :attachment
-                     :content f-url}]})]
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body [{:type :attachment
+                    :content (io/as-url jar-url)
+                    :file-name "test-filename.txt"}
+                   {:type :attachment
+                    :content f-file}]})]
     (is (.contains m "tempfile"))
     (is (.contains m "test-filename.txt"))
     (is (not (.contains m "test-directory")))
-    (is (.contains m "resolv.conf"))
-    (is (not (.contains m "etc")))
+    (is
+     (re-find
+      #"\tfilename=[A-F0-9]+-[A-F0-9]+-[A-F0-9]+-[A-F0-9]+-[A-F0-9]+" m))
     (.delete jar)))
 
 (deftest test-attachment-with-custom-name-and-description
