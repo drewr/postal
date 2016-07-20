@@ -1,3 +1,7 @@
+2.0.1
+
+* Avoid setting 'sender:' header when :sender key included in message #46
+
 2.0.0
 
 * Update branching scheme
