@@ -1,5 +1,6 @@
 2.0.1
 
+* Use :from for From header when both :from and :sender keys are present #47
 * Avoid setting 'sender:' header when :sender key included in message #46
 
 2.0.0
