@@ -273,9 +273,17 @@
 
 (deftest test-sender
   (let [m (message->str
-           {:sender "foo@bar.dom"
+           {:sender "sender@bar.dom"
             :to "baz@bar.dom"
             :subject "Test"
             :body "Test!"})]
-    (is (.contains m "From: foo@bar.dom"))
-    (is (not (.contains m "sender:")))))
+    (is (.contains m "From: sender@bar.dom"))))
+
+(deftest test-from-and-sender
+  (let [m (message->str
+           {:sender "sender@bar.dom"
+            :from "from@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body "Test!"})]
+    (is (.contains m "From: from@bar.dom"))))
