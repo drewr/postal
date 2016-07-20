@@ -165,30 +165,30 @@
                        (Session/getInstance props)))]
      (make-jmessage msg session)))
   ([msg session]
-   (let [standard [:from :reply-to :to :cc :bcc
-                   :date :subject :body :message-id
-                   :user-agent]
-         charset (or (:charset msg) default-charset)
-         jmsg (proxy [MimeMessage] [session]
-                (updateMessageID []
-                  (.setHeader
-                   this
-                   "Message-ID" ((:message-id msg message-id)))))]
-     (doto jmsg
-       (add-recipients! Message$RecipientType/TO (:to msg) charset)
-       (add-recipients! Message$RecipientType/CC (:cc msg) charset)
-       (add-recipients! Message$RecipientType/BCC (:bcc msg) charset)
-       (.setFrom (if-let [sender (:sender msg)]
-                   (make-address sender charset)
-                   (make-address (:from msg) charset)))
-       (.setReplyTo (when-let [reply-to (:reply-to msg)]
-                      (make-addresses reply-to charset)))
-       (.setSubject (:subject msg) charset)
-       (.setSentDate (or (:date msg) (make-date)))
-       (.addHeader "User-Agent" (:user-agent msg (user-agent)))
-       (add-extra! (apply dissoc msg standard))
-       (add-body! (:body msg) charset)
-       (.saveChanges)))))
+     (let [standard [:from :reply-to :to :cc :bcc
+                     :date :subject :body :message-id
+                     :user-agent :sender]
+           charset (or (:charset msg) default-charset)
+           jmsg (proxy [MimeMessage] [session]
+                  (updateMessageID []
+                    (.setHeader
+                     this
+                     "Message-ID" ((:message-id msg message-id)))))]
+       (doto jmsg
+         (add-recipients! Message$RecipientType/TO (:to msg) charset)
+         (add-recipients! Message$RecipientType/CC (:cc msg) charset)
+         (add-recipients! Message$RecipientType/BCC (:bcc msg) charset)
+         (.setFrom (if-let [sender (:sender msg)]
+                     (make-address sender charset)
+                     (make-address (:from msg) charset)))
+         (.setReplyTo (when-let [reply-to (:reply-to msg)]
+                        (make-addresses reply-to charset)))
+         (.setSubject (:subject msg) charset)
+         (.setSentDate (or (:date msg) (make-date)))
+         (.addHeader "User-Agent" (:user-agent msg (user-agent)))
+         (add-extra! (apply dissoc msg standard))
+         (add-body! (:body msg) charset)
+         (.saveChanges)))))
 
 (defn make-fixture [from to & {:keys [tag]}]
   (let [uuid (str (UUID/randomUUID))
