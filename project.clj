@@ -1,4 +1,4 @@
-(defproject com.draines/postal "2.0.1"
+(defproject com.draines/postal "2.0.2-SNAPSHOT"
   :description "JavaMail on Clojure"
   :url "https://github.com/drewr/postal"
   :license {:name "MIT"
