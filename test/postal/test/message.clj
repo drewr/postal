@@ -231,6 +231,14 @@
             :reply-to "yermom@bar.dom"})]
     (is (.contains m "Reply-To: yermom"))))
 
+(deftest test-make-address-to
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :to (make-address "bob@bar.dom" "To > Bob" "UTF-8")
+            :subject "Test"            
+            :body "Test"})]
+    (is (.contains m "\"To > Bob\" <bob@bar.dom>"))))
+
 (deftest test-only-bcc
   (let [m (message->str
            {:from "foo@bar.dom"

@@ -44,12 +44,15 @@
   (or (:sender msg) (:from msg)))
 
 (defn make-address
-  ([^String addr ^String charset]
-   (when-let [^InternetAddress a (try (InternetAddress. addr)
-                                      (catch Exception _))]
-     (InternetAddress. (.getAddress a)
-                       (.getPersonal a)
-                       charset)))
+  ([addr ^String charset]
+   (if (instance? InternetAddress addr)
+     addr
+     (let [a (try (InternetAddress. addr)
+                  (catch Exception _))]
+       (if a
+         (InternetAddress. (.getAddress a)
+                           (.getPersonal a)
+                           charset)))))
   ([^String addr ^String name-str ^String charset]
    (try (InternetAddress. addr name-str charset)
         (catch Exception _))))
@@ -80,10 +83,12 @@
 
 (defn add-recipients! [jmsg rtype addrs charset]
   (when addrs
-    (if (string? addrs)
-      (add-recipient! jmsg rtype addrs charset)
+    (cond
+      (sequential? addrs)
       (doseq [addr addrs]
-        (add-recipient! jmsg rtype addr charset))))
+        (add-recipient! jmsg rtype addr charset)))
+      :otherwise
+      (add-recipient! jmsg rtype addrs charset))
   jmsg)
 
 (declare eval-bodypart eval-multipart)
