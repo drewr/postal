@@ -29,10 +29,8 @@
   (:import [java.util UUID]
            [java.net MalformedURLException]
            [javax.activation DataHandler]
-           [javax.mail Session Message$RecipientType]
-           [javax.mail.internet MimeMessage InternetAddress
-            AddressException]
-           [javax.mail PasswordAuthentication]))
+           [javax.mail Message Message$RecipientType PasswordAuthentication Session]
+           [javax.mail.internet InternetAddress MimeMessage]))
 
 (def default-charset "utf-8")
 
@@ -47,12 +45,11 @@
 
 (defn make-address
   ([^String addr ^String charset]
-   (let [a (try (InternetAddress. addr)
-                (catch Exception _))]
-     (if a
-       (InternetAddress. (.getAddress a)
-                         (.getPersonal a)
-                         charset))))
+   (when-let [^InternetAddress a (try (InternetAddress. addr)
+                                      (catch Exception _))]
+     (InternetAddress. (.getAddress a)
+                       (.getPersonal a)
+                       charset)))
   ([^String addr ^String name-str ^String charset]
    (try (InternetAddress. addr name-str charset)
         (catch Exception _))))
@@ -63,12 +60,12 @@
     (into-array InternetAddress (map #(make-address % charset)
                                      addresses))))
 
-(defn- make-url [x]
+(defn- ^java.net.URL make-url [x]
   (try (as-url x)
        (catch MalformedURLException e
          (as-url (as-file x)))))
 
-(defn message->str [msg]
+(defn ^String message->str [msg]
   (with-open [out (java.io.ByteArrayOutputStream.)]
     (let [^javax.mail.Message jmsg (if (instance? MimeMessage msg)
                                      msg (make-jmessage msg))]
@@ -147,7 +144,9 @@
 
 (defn add-body! [^javax.mail.Message jmsg body charset]
   (if (string? body)
-    (doto jmsg (.setText body charset))
+    (if (instance? MimeMessage jmsg)
+      (doto ^MimeMessage jmsg (.setText body charset))
+      (doto jmsg (.setText body)))
     (doto jmsg (add-multipart! body))))
 
 (defn make-auth [user pass]
@@ -169,20 +168,21 @@
                      :date :subject :body :message-id
                      :user-agent :sender]
            charset (or (:charset msg) default-charset)
-           jmsg (proxy [MimeMessage] [session]
+           jmsg (proxy [MimeMessage] [^Session session]
                   (updateMessageID []
                     (.setHeader
-                     this
+                     ^MimeMessage this
                      "Message-ID" ((:message-id msg message-id)))))]
-       (doto jmsg
+       (doto ^MimeMessage jmsg
          (add-recipients! Message$RecipientType/TO (:to msg) charset)
          (add-recipients! Message$RecipientType/CC (:cc msg) charset)
          (add-recipients! Message$RecipientType/BCC (:bcc msg) charset)
          (.setFrom (let [{:keys [from sender]} msg]
+                     ^InternetAddress
                      (make-address (or from sender) charset)))
          (.setReplyTo (when-let [reply-to (:reply-to msg)]
                         (make-addresses reply-to charset)))
-         (.setSubject (:subject msg) charset)
+         (.setSubject (:subject msg) ^String charset)
          (.setSentDate (or (:date msg) (make-date)))
          (.addHeader "User-Agent" (:user-agent msg (user-agent)))
          (add-extra! (apply dissoc msg standard))
