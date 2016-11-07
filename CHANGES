@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 2.0.2
 
 * Clean up reflection warnings (#79)
 
-=======
->>>>>>> pull/79
 2.0.1
 
 * Use :from for From header when both :from and :sender keys are present #47
