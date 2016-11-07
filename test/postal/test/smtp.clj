@@ -30,12 +30,8 @@
              :to "baz@bar.dom"
              :subject "Test"
              :body "Hello."}]
-    (binding [smtp/smtp-send* (fn [& args] args)]
-      (->>
-       (smtp/smtp-send attrs [msg])
-       first
-       .getProperties
-       (into {})))))
+    (binding [smtp/smtp-send* (fn [^javax.mail.Session session & _] (into {} (.getProperties session)))]
+      (smtp/smtp-send attrs [msg]))))
 
 (defmacro is-props [input want]
   `(is (= (props ~input) ~want)))

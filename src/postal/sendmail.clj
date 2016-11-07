@@ -71,7 +71,7 @@
             cmd (concat
                  [sendmail "-f" (sender msg)]
                  (recipients msg))
-            pb (ProcessBuilder. cmd)
+            pb (ProcessBuilder. ^java.util.List cmd)
             p (.start pb)
             smtp (java.io.PrintStream. (.getOutputStream p))]
         (.print smtp mail)
