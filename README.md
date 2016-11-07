@@ -22,7 +22,7 @@ SSL.
 
 Served by Clojars.  In your Leiningen project.clj:
 
-    [com.draines/postal "2.0.0"]
+[![Clojars Project](https://img.shields.io/clojars/v/com.draines/postal.svg)](https://clojars.org/com.draines/postal)
 
 Likewise substitute any tag name from git.
 
