@@ -175,7 +175,7 @@
   (let [from "foo@bar.dom"
         to "baz@bar.dom"
         tag "[TEST]"]
-    (is (zero? (.indexOf (:subject (make-fixture from to :tag tag)) "[TEST")))))
+    (is (zero? (.indexOf ^String (:subject (make-fixture from to :tag tag)) "[TEST")))))
 
 (deftest test-extra-headers
   (let [m {:from "foo@bar.dom"
