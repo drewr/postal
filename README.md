@@ -131,7 +131,13 @@ Attachments and multipart messages can be added as sequences of maps:
                                         :content (java.io.File. "/tmp/foo.txt")}
                                        {:type :inline
                                         :content (java.io.File. "/tmp/a.pdf")
-                                        :content-type "application/pdf"}]})
+                                        :content-type "application/pdf"}
+                                       {:type :data-handler
+                                        :content (javax.activation.DataHandler.
+                                            (javax.mail.util.ByteArrayDataSource. "Hello, I am a string file"
+                                                                                  "text/plain"))
+                                        :file-name "message-in-a-bottle.txt"
+                                        :description "Message in a bottle"}]})
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core>
 

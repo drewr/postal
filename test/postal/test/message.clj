@@ -29,8 +29,10 @@
   (:import [java.util Properties UUID]
            [javax.mail Session Message$RecipientType]
            [javax.mail.internet MimeMessage InternetAddress
-            AddressException]
-           [java.util.zip ZipOutputStream ZipEntry]))
+                                AddressException]
+           [java.util.zip ZipOutputStream ZipEntry]
+           (javax.mail.util ByteArrayDataSource)
+           (javax.activation DataHandler)))
 
 (deftest test-simple
   (let [m (message->str
@@ -146,6 +148,21 @@
     (is (.contains m "ImportantDocumentA.txt"))
     (is (.contains m "A document that we should all marvel at"))
     (.delete f1)))
+
+(deftest test-attachment-with-data-handler
+  (let [h1 (DataHandler. (ByteArrayDataSource. "Hello, I am a string file" "text/plain"))
+        m (message->str
+            {:from "foo@bar.dom"
+             :to "baz@bar.dom"
+             :subject "Test"
+             :body [{:type "text/plain"
+                     :content "See attached"}
+                    {:type :data-handler
+                     :file-name "String.txt"
+                     :description "Message from a bottle"
+                     :content h1}]})
+        _ (println m)]
+    (is (.contains m "Hello"))))
 
 (deftest test-nested
   (let [f (doto (java.io.File/createTempFile "_postal-" ".txt"))
