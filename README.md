@@ -93,7 +93,7 @@ anyway.)
     postal.core> (send-message {:host "smtp.gmail.com"
                                 :user "jsmith"
                                 :pass "sekrat!!1"
-                                :ssl :yes!!!11}
+                                :ssl true}
                                {:from "me@draines.com"
                                 :to "foo@example.com"
                                 :subject "Hi!"
