@@ -118,6 +118,13 @@
                 (.setFileName (:file-name part)))
         (cond-> (:description part)
                 (.setDescription (:description part)))))
+    [:data-handler]
+    (doto (javax.mail.internet.MimeBodyPart.)
+      (.setDataHandler (:content part))
+      (cond-> (:file-name part)
+              (.setFileName (:file-name part)))
+      (cond-> (:description part)
+              (.setDescription (:description part))))
     (doto (javax.mail.internet.MimeBodyPart.)
       (.setContent (:content part) (:type part))
       (cond-> (:file-name part)
