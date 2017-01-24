@@ -44,12 +44,14 @@
   (or (:sender msg) (:from msg)))
 
 (defn make-address
-  ([^String addr ^String charset]
-   (when-let [^InternetAddress a (try (InternetAddress. addr)
-                                      (catch Exception _))]
-     (InternetAddress. (.getAddress a)
-                       (.getPersonal a)
-                       charset)))
+  ([addr ^String charset]
+   (if (instance? InternetAddress addr)
+     addr
+     (when-let [^InternetAddress a (try (InternetAddress. addr)
+                                        (catch Exception _))]
+       (InternetAddress. (.getAddress a)
+                         (.getPersonal a)
+                         charset))))
   ([^String addr ^String name-str ^String charset]
    (try (InternetAddress. addr name-str charset)
         (catch Exception _))))
@@ -80,10 +82,12 @@
 
 (defn add-recipients! [jmsg rtype addrs charset]
   (when addrs
-    (if (string? addrs)
-      (add-recipient! jmsg rtype addrs charset)
+    (cond
+      (sequential? addrs)
       (doseq [addr addrs]
-        (add-recipient! jmsg rtype addr charset))))
+        (add-recipient! jmsg rtype addr charset)))
+    :otherwise
+      (add-recipient! jmsg rtype addrs charset))
   jmsg)
 
 (declare eval-bodypart eval-multipart)
@@ -164,30 +168,30 @@
                        (Session/getInstance props)))]
      (make-jmessage msg session)))
   ([msg session]
-     (let [standard [:from :reply-to :to :cc :bcc
-                     :date :subject :body :message-id
-                     :user-agent :sender]
-           charset (or (:charset msg) default-charset)
-           jmsg (proxy [MimeMessage] [^Session session]
-                  (updateMessageID []
-                    (.setHeader
-                     ^MimeMessage this
-                     "Message-ID" ((:message-id msg message-id)))))]
-       (doto ^MimeMessage jmsg
-         (add-recipients! Message$RecipientType/TO (:to msg) charset)
-         (add-recipients! Message$RecipientType/CC (:cc msg) charset)
-         (add-recipients! Message$RecipientType/BCC (:bcc msg) charset)
-         (.setFrom (let [{:keys [from sender]} msg]
-                     ^InternetAddress
-                     (make-address (or from sender) charset)))
-         (.setReplyTo (when-let [reply-to (:reply-to msg)]
-                        (make-addresses reply-to charset)))
-         (.setSubject (:subject msg) ^String charset)
-         (.setSentDate (or (:date msg) (make-date)))
-         (.addHeader "User-Agent" (:user-agent msg (user-agent)))
-         (add-extra! (apply dissoc msg standard))
-         (add-body! (:body msg) charset)
-         (.saveChanges)))))
+   (let [standard [:from :reply-to :to :cc :bcc
+                   :date :subject :body :message-id
+                   :user-agent :sender]
+         charset (or (:charset msg) default-charset)
+         jmsg (proxy [MimeMessage] [^Session session]
+                (updateMessageID []
+                  (.setHeader
+                   ^MimeMessage this
+                   "Message-ID" ((:message-id msg message-id)))))]
+     (doto ^MimeMessage jmsg
+       (add-recipients! Message$RecipientType/TO (:to msg) charset)
+       (add-recipients! Message$RecipientType/CC (:cc msg) charset)
+       (add-recipients! Message$RecipientType/BCC (:bcc msg) charset)
+       (.setFrom (let [{:keys [from sender]} msg]
+                   ^InternetAddress
+                   (make-address (or from sender) charset)))
+       (.setReplyTo (when-let [reply-to (:reply-to msg)]
+                      (make-addresses reply-to charset)))
+       (.setSubject (:subject msg) ^String charset)
+       (.setSentDate (or (:date msg) (make-date)))
+       (.addHeader "User-Agent" (:user-agent msg (user-agent)))
+       (add-extra! (apply dissoc msg standard))
+       (add-body! (:body msg) charset)
+       (.saveChanges)))))
 
 (defn make-fixture [from to & {:keys [tag]}]
   (let [uuid (str (UUID/randomUUID))
