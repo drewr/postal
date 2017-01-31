@@ -40,7 +40,7 @@
 (defn log* [x s]
   (let [s* (format "%s %s"
                    (.format DATEFORMAT (Date.))
-                   (apply str (interpose " " s)))]
+                   (clojure.string/join " " s))]
     (println s*)
     (flush)
     s*))
@@ -66,7 +66,7 @@
      (spam host port from to n 0))
   ([host port from to n delay]
      (log (format "(thread: %s) %s msgs -> %s"
-                  (-> (Thread/currentThread) .getId)
+                  (.getId (Thread/currentThread))
                   n host))
      (let [date (.format DATEFORMAT (Date.))]
        (dotimes [x n]
