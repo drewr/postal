@@ -102,28 +102,36 @@
     (doto (javax.mail.internet.MimeBodyPart.)
       (.setContent (eval-multipart part)))))
 
+(defn set-header-extra! [^javax.mail.internet.MimeBodyPart bodyPart headers]
+  (doseq [[n v] headers]
+    (.setHeader bodyPart (if (keyword? n) (name n) n) v))
+  bodyPart)
+
 (defn eval-bodypart [part]
-  (condp (fn [test type] (some #(= % type) test)) (:type part)
-    [:inline :attachment]
-    (let [url (make-url (:content part))]
+  (let [extra-headers (apply dissoc part [:content-type :content-id :file-name :description :type :content])]
+    (condp (fn [test type] (some #(= % type) test)) (:type part)
+      [:inline :attachment]
+      (let [url (make-url (:content part))]
+        (doto (javax.mail.internet.MimeBodyPart.)
+          (.setDataHandler (DataHandler. url))
+          (.setFileName (re-find #"[^/]+$" (.getPath url)))
+          (.setDisposition (name (:type part)))
+          (cond-> (:content-type part)
+            (.setHeader "Content-Type" (:content-type part)))
+          (cond-> (:content-id part)
+            (.setContentID (str "<" (:content-id part) ">")))
+          (cond-> (:file-name part)
+            (.setFileName (:file-name part)))
+          (cond-> (:description part)
+            (.setDescription (:description part)))
+          (-> (set-header-extra! extra-headers))))
       (doto (javax.mail.internet.MimeBodyPart.)
-        (.setDataHandler (DataHandler. url))
-        (.setFileName (re-find #"[^/]+$" (.getPath url)))
-        (.setDisposition (name (:type part)))
-        (cond-> (:content-type part)
-                (.setHeader "Content-Type" (:content-type part)))
-        (cond-> (:content-id part)
-                (.setContentID (str "<" (:content-id part) ">")))
+        (.setContent (:content part) (:type part))
         (cond-> (:file-name part)
-                (.setFileName (:file-name part)))
+          (.setFileName (:file-name part)))
         (cond-> (:description part)
-                (.setDescription (:description part)))))
-    (doto (javax.mail.internet.MimeBodyPart.)
-      (.setContent (:content part) (:type part))
-      (cond-> (:file-name part)
-              (.setFileName (:file-name part)))
-      (cond-> (:description part)
-              (.setDescription (:description part))))))
+          (.setDescription (:description part)))
+        (-> (set-header-extra! extra-headers))))))
 
 (defn eval-multipart [parts]
   (let [;; multiparts can have a number of different types: mixed,

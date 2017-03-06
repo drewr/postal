@@ -56,6 +56,19 @@
     (is (.contains m "Content-Type: text/html"))
     (is (.contains m "some html"))))
 
+(deftest test-multipart-with-custom-headers
+  (let [m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test Headers"
+            :body
+            [{:type "text/calendar"
+              :content "VEVENT.."
+              :Content-Class "urn:content-classes:calendarmessage"
+              :Content-ID "CalendarIDTest"}]})]
+    (is (.contains m "urn:content"))
+    (is (.contains m "CalendarIDTest"))))
+
 (deftest test-multipart-with-custom-name-and-description
   (let [m (message->str
            {:from "foo@bar.dom"
