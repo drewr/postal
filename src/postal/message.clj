@@ -23,14 +23,14 @@
 
 (ns postal.message
   (:use [clojure.set :only [difference]]
-        [clojure.java.io :only [as-url as-file]]
+        [clojure.java.io :only [as-url as-file input-stream]]
         [postal.date :only [make-date]]
         [postal.support :only [do-when make-props message-id user-agent]])
   (:import [java.util UUID]
            [java.net MalformedURLException]
            [javax.activation DataHandler]
            [javax.mail Message Message$RecipientType PasswordAuthentication Session]
-           [javax.mail.internet InternetAddress MimeMessage]))
+           [javax.mail.internet InternetAddress MimeMessage InternetHeaders]))
 
 (def default-charset "utf-8")
 
@@ -102,13 +102,36 @@
     (doto (javax.mail.internet.MimeBodyPart.)
       (.setContent (eval-multipart part)))))
 
+(defn bytes? [x]
+  (if (nil? x)
+    false
+    (= (Class/forName "[B")
+       (.getClass x))))
+
+(defmulti make-mime-part (fn [part]
+                           (if (bytes? (:content part))
+                             :byte-array
+                             :url)))
+
+(defmethod make-mime-part :byte-array
+  [part]
+  (let [headers (doto (InternetHeaders.)
+                  (.setHeader "Content-Transfer-Encoding" "base64"))]
+    (javax.mail.internet.MimeBodyPart. headers
+                                       (:content part))))
+
+(defmethod make-mime-part :url
+  [part]
+  (let [url (make-url (:content part))]
+    (doto (javax.mail.internet.MimeBodyPart.)
+      (.setDataHandler (DataHandler. url))
+      (.setFileName (re-find #"[^/]+$" (.getPath url))))))
+
 (defn eval-bodypart [part]
   (condp (fn [test type] (some #(= % type) test)) (:type part)
     [:inline :attachment]
-    (let [url (make-url (:content part))]
-      (doto (javax.mail.internet.MimeBodyPart.)
-        (.setDataHandler (DataHandler. url))
-        (.setFileName (re-find #"[^/]+$" (.getPath url)))
+    (let [mime-part (make-mime-part part)]
+      (doto mime-part
         (.setDisposition (name (:type part)))
         (cond-> (:content-type part)
                 (.setHeader "Content-Type" (:content-type part)))
