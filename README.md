@@ -36,7 +36,7 @@ technically optional).  Any other keys you supply will show up as
 ancillary headers.  This example will locally inject the message into
 whatever sendmail-compatible interface your system provides.
 
-```clojre
+```clojure
 (use 'postal.core)
 ;;=> #<Namespace postal.core>
 
@@ -171,8 +171,7 @@ support (or suppress) HTML-mails:
                       {:type "text/html"
                        :content "<html><head> </head><body>
                                     <h1>Heading 1</h1><p>This is a test.</p>
-                                    </body></html>"}
-                      ]})
+                                    </body></html>"}]})
 ```
 
 #### UTF-8
