@@ -71,7 +71,7 @@ parameters as metadata on the message.  `(send-message ^{:host ...} {:from ...})
 
 Authenticate to SMTP server with `:user` and `:pass`.
 
-```clojre
+```clojure
 (send-message {:host "mail.isp.net"
                :user "jsmith"
                :pass "sekrat!!1"}
