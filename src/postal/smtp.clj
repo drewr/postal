@@ -34,7 +34,7 @@
 
 (defn- send-multiple [transport jmsgs]
   (doseq [^javax.mail.Message jmsg jmsgs]
-    (.sendMessage transport jmsg (.getAllRecipients jmsg)))
+    (send-single transport jmsg))
   {:code 0 :error :SUCCESS :message "messages sent"})
 
 (defn ^:dynamic smtp-send* [^Session session ^String proto
