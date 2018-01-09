@@ -102,26 +102,30 @@
     (doto (javax.mail.internet.MimeBodyPart.)
       (.setContent (eval-multipart part)))))
 
+(defn- encode-filename [filename]
+  (. javax.mail.internet.MimeUtility encodeText filename "UTF-8" nil))
+
 (defn eval-bodypart [part]
   (condp (fn [test type] (some #(= % type) test)) (:type part)
     [:inline :attachment]
     (let [url (make-url (:content part))]
       (doto (javax.mail.internet.MimeBodyPart.)
         (.setDataHandler (DataHandler. url))
-        (.setFileName (re-find #"[^/]+$" (.getPath url)))
+        (.setFileName (-> (re-find #"[^/]+$" (.getPath url))
+                          encode-filename))
         (.setDisposition (name (:type part)))
         (cond-> (:content-type part)
                 (.setHeader "Content-Type" (:content-type part)))
         (cond-> (:content-id part)
                 (.setContentID (str "<" (:content-id part) ">")))
         (cond-> (:file-name part)
-                (.setFileName (:file-name part)))
+                (.setFileName (encode-filename (:file-name part))))
         (cond-> (:description part)
                 (.setDescription (:description part)))))
     (doto (javax.mail.internet.MimeBodyPart.)
       (.setContent (:content part) (:type part))
       (cond-> (:file-name part)
-              (.setFileName (:file-name part)))
+              (.setFileName (encode-filename (:file-name part))))
       (cond-> (:description part)
               (.setDescription (:description part))))))
 
