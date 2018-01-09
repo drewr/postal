@@ -147,6 +147,23 @@
     (is (.contains m "A document that we should all marvel at"))
     (.delete f1)))
 
+(deftest test-attachment-with-unicode-name
+  (let [f1 (doto (java.io.File/createTempFile "_postal-" ".txt"))
+        _ (doto (java.io.PrintWriter. f1)
+            (.println "tempfile contents") (.close))
+        m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body [{:type "text/plain"
+                    :content "See attached"}
+                   {:type :attachment
+                    :file-name "Важный документ.txt"
+                    :content f1}]})]
+    (is (.contains m "tempfile"))
+    (is (.contains m "=?UTF-8?B?0JLQsNC20L3Ri9C5INC00L7QutGD0LzQtdC90YIudHh0?="))
+    (.delete f1)))
+
 (deftest test-nested
   (let [f (doto (java.io.File/createTempFile "_postal-" ".txt"))
         _ (doto (java.io.PrintWriter. f)
@@ -235,7 +252,7 @@
   (let [m (message->str
            {:from "foo@bar.dom"
             :to (make-address "bob@bar.dom" "To > Bob" "UTF-8")
-            :subject "Test"            
+            :subject "Test"
             :body "Test"})]
     (is (.contains m "\"To > Bob\" <bob@bar.dom>"))))
 
