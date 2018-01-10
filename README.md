@@ -57,7 +57,7 @@ To use SMTP, add an argument map before the message with at least
                                 :to "foo@example.com"
                                 :subject "Hi!"
                                 :body "Test."})
-    {:code 0, :error :SUCCESS, :message "message sent"}
+    {:code 250, :error :SUCCESS, :message "250 Ok\n"}
     postal.core>
 
 For legacy compatibility, you can also supply these connection
@@ -74,7 +74,7 @@ Authenticate to SMTP server with `:user` and `:pass`.
                                 :to "foo@example.com"
                                 :subject "Hi!"
                                 :body "Test."})
-    {:code 0, :error :SUCCESS, :message "message sent"}
+    {:code 250, :error :SUCCESS, :message "250 Ok\n"}
     postal.core>
 
 #### Encryption (Gmail example)
@@ -98,7 +98,7 @@ anyway.)
                                 :to "foo@example.com"
                                 :subject "Hi!"
                                 :body "Test."})
-    {:code 0, :error :SUCCESS, :message "message sent"}
+    {:code 250, :error :SUCCESS, :message "250 Ok\n"}
     postal.core>
 
 #### Amazon
@@ -113,7 +113,7 @@ you can only send *to* a verified address as well.  Example:
                                 :port 587}
                    {:from "me@draines.com" :to "me@draines.com"
                     :subject "Test from Amazon SES" :body "Test!!!11"})
-    {:error :SUCCESS, :code 0, :message "messages sent"}
+    {:code 250, :error :SUCCESS, :message "250 Ok 01020160ba715c7e-0268d4ae-4189-4020-80c0-23328e018775-000000\n"}
     postal.core>
 
 #### Attachments
@@ -132,7 +132,7 @@ Attachments and multipart messages can be added as sequences of maps:
                                        {:type :inline
                                         :content (java.io.File. "/tmp/a.pdf")
                                         :content-type "application/pdf"}]})
-    {:code 0, :error :SUCCESS, :message "message sent"}
+    {:code 250, :error :SUCCESS, :message "250 Ok\n"}
     postal.core>
 
 If your attachment has a content-type that is not recognized by
@@ -212,25 +212,25 @@ You can stress-test a server by:
 
 ## Contributors
 
-Allen Rohner       
-Andre Branco       
-Andy Fingerhut       
-Christoph Henkelmann       
-Colin Jones       
-Dante Briones      
-Dimas Guardado       
-Gerrit Hentschel       
-J. David Lowe       
-Jeff Palmucci       
-Joe Gallo       
-Kevin DeJong       
-Kyle Kingsbury      
-Paul Biggar       
-Paul Stadig       
-Phil Hagelberg       
-Roman Flammer       
-Sam Ritchie       
-Stephen Nelson         
+Allen Rohner
+Andre Branco
+Andy Fingerhut
+Christoph Henkelmann
+Colin Jones
+Dante Briones
+Dimas Guardado
+Gerrit Hentschel
+J. David Lowe
+Jeff Palmucci
+Joe Gallo
+Kevin DeJong
+Kyle Kingsbury
+Paul Biggar
+Paul Stadig
+Phil Hagelberg
+Roman Flammer
+Sam Ritchie
+Stephen Nelson
 
 ## License
 
