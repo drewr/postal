@@ -124,6 +124,8 @@
                 (.setDescription (:description part)))))
     (doto (javax.mail.internet.MimeBodyPart.)
       (.setContent (:content part) (:type part))
+      (cond-> (:content-id part)
+              (.setContentID (str "<" (:content-id part) ">")))
       (cond-> (:file-name part)
               (.setFileName (encode-filename (:file-name part))))
       (cond-> (:description part)
