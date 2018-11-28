@@ -214,9 +214,12 @@ You can stress-test a server by:
 
 ## Contributors
 
+Alexander Kouznetsov         
 Allen Rohner       
 Andre Branco       
+Andres Cuervo     
 Andy Fingerhut       
+Camille Troillard       
 Christoph Henkelmann       
 Colin Jones       
 Dante Briones      
