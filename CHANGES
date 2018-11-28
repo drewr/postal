@@ -1,3 +1,6 @@
+2.0.3
+* Allow bcc-only emails (#91)
+
 2.0.2
 
 * Clean up reflection warnings (#79)
