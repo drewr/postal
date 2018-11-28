@@ -1,5 +1,7 @@
 2.0.3
+* Make make-address better for constructing addresses (#77)
 * Allow bcc-only emails (#91)
+* MIME-encode filenames in attachements (#95)
 
 2.0.2
 
