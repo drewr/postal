@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/drewr/postal/tree/master.svg?style=svg)](https://circleci.com/gh/drewr/postal/tree/master)
+
 postal
 =======
 
