@@ -22,7 +22,7 @@ SSL.
 
 Served by Clojars.  In your Leiningen project.clj:
 
-    [com.draines/postal "2.0.0"]
+[![Clojars Project](https://img.shields.io/clojars/v/com.draines/postal.svg)](https://clojars.org/com.draines/postal)
 
 Likewise substitute any tag name from git.
 
@@ -230,8 +230,9 @@ Paul Stadig
 Phil Hagelberg       
 Roman Flammer       
 Sam Ritchie       
+Stephen Nelson         
 
 ## License
 
-Postal is (c) 2009-2014 Andrew A. Raines and released under the MIT
+Postal is (c) 2009-2016 Andrew A. Raines and released under the MIT
 license.

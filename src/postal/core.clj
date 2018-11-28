@@ -28,9 +28,10 @@
 
 (defn send-message
   ([{:keys [host] :as server}
-    {:keys [from to subject body] :or {to "" subject ""} :as msg}]
-     (when-not (and from to)
-       (throw (Exception. "message needs at least :from and :to")))
+    {:keys [from to bcc subject body] :or {to "" subject ""} :as msg}]
+     (when-not (or (and from to)
+                   (and from bcc))
+       (throw (Exception. "message needs at least :from and :to or :from and :bcc")))
      (if host
        (smtp-send server msg)
        (sendmail-send msg)))

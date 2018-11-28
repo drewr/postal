@@ -1,0 +1,15 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: clojure:lein-2.8.1
+    steps:
+      - checkout
+      - restore_cache:
+          key: << checksum "project.clj" >>
+      - run: lein test-all
+      - save_cache:
+          paths:
+            - $HOME/.m2
+            - $HOME/.lein
+          key: << checksum "project.clj" >>
