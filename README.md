@@ -239,5 +239,5 @@ Stephen Nelson
 
 ## License
 
-Postal is (c) 2009-2016 Andrew A. Raines and released under the MIT
+Postal is (c) 2009-2019 Andrew A. Raines and released under the MIT
 license.
