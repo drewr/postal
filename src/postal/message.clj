@@ -30,7 +30,8 @@
            [java.net MalformedURLException]
            [javax.activation DataHandler]
            [javax.mail Message Message$RecipientType PasswordAuthentication Session]
-           [javax.mail.internet InternetAddress MimeMessage]))
+           [javax.mail.internet InternetAddress MimeMessage]
+           [javax.mail.util ByteArrayDataSource]))
 
 (def default-charset "utf-8")
 
@@ -105,23 +106,36 @@
 (defn- encode-filename [filename]
   (. javax.mail.internet.MimeUtility encodeText filename "UTF-8" nil))
 
-(defn eval-bodypart [part]
-  (condp (fn [test type] (some #(= % type) test)) (:type part)
-    [:inline :attachment]
-    (let [url (make-url (:content part))]
+(defprotocol MimeBodyPart
+  (^javax.mail.internet.MimeBodyPart mime-body-part [content part]))
+
+(extend-protocol MimeBodyPart
+  (class (make-array Byte/TYPE 0))
+  (mime-body-part [content {:keys [content-type]}]
+    (let [src (ByteArrayDataSource. ^bytes content ^String content-type)]
+      (doto (javax.mail.internet.MimeBodyPart.)
+        (.setDataHandler (DataHandler. src)))))
+  Object
+  (mime-body-part [content _]
+    (let [url (make-url content)]
       (doto (javax.mail.internet.MimeBodyPart.)
         (.setDataHandler (DataHandler. url))
         (.setFileName (-> (re-find #"[^/]+$" (.getPath url))
-                          encode-filename))
-        (.setDisposition (name (:type part)))
-        (cond-> (:content-type part)
-          (.setHeader "Content-Type" (:content-type part)))
-        (cond-> (:content-id part)
-          (.setContentID (str "<" (:content-id part) ">")))
-        (cond-> (:file-name part)
-          (.setFileName (encode-filename (:file-name part))))
-        (cond-> (:description part)
-          (.setDescription (:description part)))))
+                          encode-filename))))))
+
+(defn eval-bodypart [part]
+  (condp (fn [test type] (some #(= % type) test)) (:type part)
+    [:inline :attachment]
+    (doto (mime-body-part (:content part) part)
+      (.setDisposition (name (:type part)))
+      (cond-> (:content-type part)
+              (.setHeader "Content-Type" (:content-type part)))
+      (cond-> (:content-id part)
+              (.setContentID (str "<" (:content-id part) ">")))
+      (cond-> (:file-name part)
+              (.setFileName (encode-filename (:file-name part))))
+      (cond-> (:description part)
+              (.setDescription (:description part))))
     (doto (javax.mail.internet.MimeBodyPart.)
       (.setContent (:content part) (:type part))
       (cond-> (:file-name part)
