@@ -38,29 +38,33 @@ technically optional).  Any other keys you supply will show up as
 ancillary headers.  This example will locally inject the message into
 whatever sendmail-compatible interface your system provides.
 
-    user> (in-ns 'postal.core)
-    #<Namespace postal.core>
-    postal.core> (send-message {:from "me@draines.com"
-                                :to ["mom@example.com" "dad@example.com"]
-                                :cc "bob@example.com"
-                                :subject "Hi!"
-                                :body "Test."
-                                :X-Tra "Something else"})
-    {:code 0, :error :SUCCESS, :message "message sent"}
-    postal.core>
+```clojure
+(use 'postal.core)
+;;=> #<Namespace postal.core>
 
+(send-message {:from    "me@draines.com"
+               :to      ["mom@example.com" "dad@example.com"]
+               :cc      "bob@example.com"
+               :subject "Hi!"
+               :body    "Test."
+               :X-Tra   "Something else"})
+
+;;=> {:code 0, :error :SUCCESS, :message "message sent"}
+```
 #### SMTP
 
 To use SMTP, add an argument map before the message with at least
 `:host` key.
 
-    postal.core> (send-message {:host "mail.isp.net"}
-                               {:from "me@draines.com"
-                                :to "foo@example.com"
-                                :subject "Hi!"
-                                :body "Test."})
-    {:code 0, :error :SUCCESS, :message "message sent"}
-    postal.core>
+```clojure
+(send-message {:host "mail.isp.net"}
+              {:from "me@draines.com"
+               :to "foo@example.com"
+               :subject "Hi!"
+               :body "Test."})
+
+;;=> {:code 0, :error :SUCCESS, :message "message sent"}
+```
 
 For legacy compatibility, you can also supply these connection
 parameters as metadata on the message.  `(send-message ^{:host ...} {:from ...})`
@@ -69,15 +73,17 @@ parameters as metadata on the message.  `(send-message ^{:host ...} {:from ...})
 
 Authenticate to SMTP server with `:user` and `:pass`.
 
-    postal.core> (send-message {:host "mail.isp.net"
-                                :user "jsmith"
-                                :pass "sekrat!!1"}
-                               {:from "me@draines.com"
-                                :to "foo@example.com"
-                                :subject "Hi!"
-                                :body "Test."})
-    {:code 0, :error :SUCCESS, :message "message sent"}
-    postal.core>
+```clojure
+(send-message {:host "mail.isp.net"
+               :user "jsmith"
+               :pass "sekrat!!1"}
+              {:from "me@draines.com"
+               :to "foo@example.com"
+               :subject "Hi!"
+               :body "Test."})
+
+;;=> {:code 0, :error :SUCCESS, :message "message sent"}
+```
 
 #### Encryption (Gmail example)
 
@@ -92,16 +98,18 @@ port 25 to relays that aren't theirs.  Gmail supports SSL & TLS but
 it's easiest to just use SSL since you'll likely need port 465
 anyway.)
 
-    postal.core> (send-message {:host "smtp.gmail.com"
-                                :user "jsmith"
-                                :pass "sekrat!!1"
-                                :ssl true}
-                               {:from "me@draines.com"
-                                :to "foo@example.com"
-                                :subject "Hi!"
-                                :body "Test."})
-    {:code 0, :error :SUCCESS, :message "message sent"}
-    postal.core>
+```clojure
+(send-message {:host "smtp.gmail.com"
+               :user "jsmith"
+               :pass "sekrat!!1"
+               :ssl true}
+              {:from "me@draines.com"
+               :to "foo@example.com"
+               :subject "Hi!"
+               :body "Test."})
+
+;;=> {:code 0, :error :SUCCESS, :message "message sent"}
+```
 
 #### Amazon
 
@@ -110,32 +118,36 @@ make sure you use a verified address and your SMTP credentials (visit
 the AWS Console to set those up).  Also, if you're just sandboxing,
 you can only send *to* a verified address as well.  Example:
 
-    postal.core> (send-message {:user "AKIAIDTP........" :pass "AikCFhx1P......."
-                                :host "email-smtp.us-east-1.amazonaws.com"
-                                :port 587}
-                   {:from "me@draines.com" :to "me@draines.com"
-                    :subject "Test from Amazon SES" :body "Test!!!11"})
-    {:error :SUCCESS, :code 0, :message "messages sent"}
-    postal.core>
+```clojure
+(send-message {:user "AKIAIDTP........" :pass "AikCFhx1P......."
+               :host "email-smtp.us-east-1.amazonaws.com"
+               :port 587}
+              {:from "me@draines.com" :to "me@draines.com"
+               :subject "Test from Amazon SES" :body "Test!!!11"})
+               
+;;=> {:error :SUCCESS, :code 0, :message "messages sent"}
+```
 
 #### Attachments
 
 Attachments and multipart messages can be added as sequences of maps:
 
-    postal.core> (send-message {:host "mail.isp.net"}
-                               {:from "me@draines.com"
-                                :to "foo@example.com"
-                                :subject "Hi!"
-                                :body [{:type "text/html"
-                                        :content "<b>Test!</b>"}
-                                       ;;;; supports both dispositions:
-                                       {:type :attachment
-                                        :content (java.io.File. "/tmp/foo.txt")}
-                                       {:type :inline
-                                        :content (java.io.File. "/tmp/a.pdf")
-                                        :content-type "application/pdf"}]})
-    {:code 0, :error :SUCCESS, :message "message sent"}
-    postal.core>
+```clojure
+(send-message {:host "mail.isp.net"}
+              {:from "me@draines.com"
+               :to "foo@example.com"
+               :subject "Hi!"
+               :body [{:type "text/html"
+                       :content "<b>Test!</b>"}
+                      ;;;; supports both dispositions:
+                      {:type :attachment
+                       :content (java.io.File. "/tmp/foo.txt")}
+                      {:type :inline
+                       :content (java.io.File. "/tmp/a.pdf")
+                       :content-type "application/pdf"}]})
+
+;;=> {:code 0, :error :SUCCESS, :message "message sent"}
+```
 
 If your attachment has a content-type that is not recognized by
 JavaMail, e.g., `.pdf` or `.doc`, you can set `:content-type`.  You
@@ -147,21 +159,22 @@ as the first value in the map sequence. That way you can for example create an
 HTML-Email that displays a text message as fallback in email clients that do not
 support (or suppress) HTML-mails:
 
-    postal.core> (send-message {:host "localhost"
-                                :port 2500
-                                :user "user@localhost"
-                                :pass "somePassword"}
-                           {:from "jon-doe@example.com"
-                            :to "jane-doe@example.com"
-                            :subject "multipart/alternative test"
-                            :body [:alternative
-                                   {:type "text/plain"
-                                    :content "This is a test."}
-                                   {:type "text/html"
-                                    :content "<html><head> </head><body>
+```clojure
+(send-message {:host "localhost"
+               :port 2500
+               :user "user@localhost"
+               :pass "somePassword"}
+              {:from "jon-doe@example.com"
+               :to "jane-doe@example.com"
+               :subject "multipart/alternative test"
+               :body [:alternative
+                      {:type "text/plain"
+                       :content "This is a test."}
+                      {:type "text/html"
+                       :content "<html><head> </head><body>
                                     <h1>Heading 1</h1><p>This is a test.</p>
-                                    </body></html>"}
-                                  ]}))
+                                    </body></html>"}]})
+```
 
 #### UTF-8
 
@@ -176,37 +189,43 @@ Postal will supply a message ID by default that looks like
 `postal.support/message-id` can be used if you'd like to make use of
 its randomness and only customize the hostname.
 
-    {:from "foo@bar.dom"
-     :to "baz@bar.dom"
-     :subject "Message IDs!"
-     :body "Regards."
-     :message-id #(postal.support/message-id "foo.bar.dom")}
+```clojure
+{:from "foo@bar.dom"
+ :to "baz@bar.dom"
+ :subject "Message IDs!"
+ :body "Regards."
+ :message-id #(postal.support/message-id "foo.bar.dom")}
+```
 
 #### User Agent
 
 You can customize the default `User-Agent` header (by default
 `postal/VERSION`).
 
-    {:from "foo@bar.dom"
-     :to "baz@bar.dom"
-     :subject "Message IDs!"
-     :body "Regards."
-     :user-agent "MyMailer 1.0"}
-
+```clojure
+{:from "foo@bar.dom"
+ :to "baz@bar.dom"
+ :subject "Message IDs!"
+ :body "Regards."
+ :user-agent "MyMailer 1.0"}
+```
 
 #### Stress-testing
 
 You can stress-test a server by:
 
-    postal.core> (stress ^{:host "localhost"
-                           :num     1000
-                           :delay   250   ;; msecs
-                           :threads 5     ;; concurrent connections}
-                         {:from "foo@lolz.dom"
-                          :to "bar@lolz.dom"})
-    sent 1000 msgs to localhost:25
-    nil
-    postal.core>
+```clojure
+(stress ^{:host "localhost"
+          :num     1000
+          :delay   250   ;; msecs
+          :threads 5     ;; concurrent connections
+          }
+          {:from "foo@lolz.dom"
+           :to "bar@lolz.dom"})
+
+;;=> sent 1000 msgs to localhost:25
+;;=> nil
+```
 
 ### Building
 
