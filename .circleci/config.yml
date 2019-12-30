@@ -6,7 +6,7 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "37:cc:ad:b6:53:7a:98:22:83:fb:d8:77:12:cf:8c:92"
+            - "a6:08:d9:a8:b8:92:c3:d2:19:f4:0b:af:a6:8b:2b:7c"
       - checkout
       - restore_cache:
           key: << checksum "project.clj" >>
