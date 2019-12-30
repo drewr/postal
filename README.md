@@ -88,20 +88,24 @@ specify one.
 If your destination supports TLS instead, you can use `:tls`.  This
 will default to port `25`, however, so if you need a different one
 make sure you supply `:port`.  (It's common for ISPs to block outgoing
-port 25 to relays that aren't theirs.  Gmail supports SSL & TLS but
-it's easiest to just use SSL since you'll likely need port 465
-anyway.)
+port 25 to relays that aren't theirs.)
 
     postal.core> (send-message {:host "smtp.gmail.com"
-                                :user "jsmith"
+                                :user "jsmith@gmail.com"
                                 :pass "sekrat!!1"
-                                :ssl true}
+                                :port 587
+                                :tls true}
                                {:from "me@draines.com"
                                 :to "foo@example.com"
                                 :subject "Hi!"
                                 :body "Test."})
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core>
+    
+(Despite [the documentation](https://support.google.com/a/answer/176600)
+mentioning SSL, your Google account is most likely restricted to TLS on port `587` and 
+furthermore you may have to configure your account to
+["allow less secure apps"](https://myaccount.google.com/lesssecureapps) in order to send emails.)
 
 #### Amazon
 
