@@ -4,6 +4,9 @@ jobs:
     docker:
       - image: clojure:lein-2.9.1
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "37:cc:ad:b6:53:7a:98:22:83:fb:d8:77:12:cf:8c:92"
       - checkout
       - restore_cache:
           key: << checksum "project.clj" >>
