@@ -104,6 +104,20 @@
     (is (not (.contains m "etc")))
     (.delete f1)))
 
+(deftest test-attachment-from-bytes
+  (let [b (.getBytes "foo")
+        m (message->str
+            {:from "x@x.dom"
+             :to "y@y.dom"
+             :subject "Test"
+             :body [{:type :attachment
+                     :content b
+                     :content-type "bar/bar"
+                     :file-name "baz"}]})]
+    (is (.contains m "foo"))
+    (is (.contains m "bar/bar"))
+    (is (.contains m "baz"))))
+
 (deftest test-attachments-from-url
   (let [jar (doto (java.io.File/createTempFile "_postal-" ".jar"))
         _ (with-open [zip-out (ZipOutputStream. (io/output-stream jar))
