@@ -7,8 +7,8 @@
             :comments "Use at your own risk"}
   :deploy-repositories [["releases" :clojars]]
   :dependencies [[commons-codec "1.9"]
-                 [com.sun.mail/javax.mail "1.5.5"]
-                 [javax.mail/javax.mail-api "1.5.5"]]
+                 [com.sun.mail/javax.mail "1.6.2"]
+                 [javax.mail/javax.mail-api "1.6.2"]]
   :global-vars {*warn-on-reflection* true}
   :profiles {:dev {:dependencies []}
              :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}

@@ -2,8 +2,11 @@ version: 2
 jobs:
   build:
     docker:
-      - image: clojure:lein-2.8.1
+      - image: clojure:openjdk-8-lein-2.9.1
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "a6:08:d9:a8:b8:92:c3:d2:19:f4:0b:af:a6:8b:2b:7c"
       - checkout
       - restore_cache:
           key: << checksum "project.clj" >>
