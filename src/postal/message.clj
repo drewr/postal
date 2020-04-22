@@ -151,10 +151,18 @@
   jmsg)
 
 (defn add-body! [^javax.mail.Message jmsg body charset]
-  (if (string? body)
+  (cond
+    (string? body)
     (if (instance? MimeMessage jmsg)
       (doto ^MimeMessage jmsg (.setText body charset))
       (doto jmsg (.setText body)))
+
+    (map? body)
+    (let [{:keys [content, type] :or {type "text/plain"}} body]
+      (doto jmsg
+        (.setContent content, type)))
+
+    :else
     (doto jmsg (add-multipart! body))))
 
 (defn make-auth [user pass]
