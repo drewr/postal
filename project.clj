@@ -1,4 +1,4 @@
-(defproject com.draines/postal "2.0.4-SNAPSHOT"
+(defproject com.draines/postal "2.0.4"
   :description "Clojure support for Internet email"
   :url "https://github.com/drewr/postal"
   :license {:name "MIT"
