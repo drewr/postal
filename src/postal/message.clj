@@ -176,6 +176,9 @@
                    :date :subject :body :message-id
                    :user-agent :sender]
          charset (or (:charset msg) default-charset)
+         from-address (let [{:keys [from sender]} msg]
+                        ^InternetAddress
+                        (make-address (or from sender) charset))
          jmsg (proxy [MimeMessage] [^Session session]
                 (updateMessageID []
                   (.setHeader
@@ -185,9 +188,8 @@
        (add-recipients! Message$RecipientType/TO (:to msg) charset)
        (add-recipients! Message$RecipientType/CC (:cc msg) charset)
        (add-recipients! Message$RecipientType/BCC (:bcc msg) charset)
-       (.setFrom (let [{:keys [from sender]} msg]
-                   ^InternetAddress
-                   (make-address (or from sender) charset)))
+       (cond-> from-address
+         (.setFrom from-address))
        (.setReplyTo (when-let [reply-to (:reply-to msg)]
                       (make-addresses reply-to charset)))
        (.setSubject (:subject msg) ^String charset)
