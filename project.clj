@@ -1,5 +1,5 @@
 (defproject com.draines/postal "3.0.0-SNAPSHOT"
-  :description "JavaMail on Clojure"
+  :description "Clojure support for Internet email"
   :url "https://github.com/drewr/postal"
   :license {:name "MIT"
             :url "http://en.wikipedia.org/wiki/MIT_License"
