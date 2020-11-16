@@ -4,7 +4,7 @@ postal
 #### Internet email library for Clojure
 
 postal is a library for constructing and sending RFC822-compliant
-Internet email messages.  It wraps the JavaMail package for message
+Internet email messages.  It wraps the Jakarta Mail package for message
 and SMTP support.  It supports sendmail natively.  Supports STARTTLS &
 SSL.
 
@@ -16,7 +16,8 @@ SSL.
 
 ### Dependencies
 
-* JavaMail 1.5.5 (in `lib/` after build)
+* Jakarta Mail (in `lib/` after build)
+* Java 8+
 
 ### Install
 
@@ -136,7 +137,7 @@ Attachments and multipart messages can be added as sequences of maps:
     postal.core>
 
 If your attachment has a content-type that is not recognized by
-JavaMail, e.g., `.pdf` or `.doc`, you can set `:content-type`.  You
+Jakarta Mail, e.g., `.pdf` or `.doc`, you can set `:content-type`.  You
 can also set `:file-name` and `:description` if you don't like the
 filename that `:content` uses.
 
@@ -163,7 +164,7 @@ support (or suppress) HTML-mails:
 
 #### UTF-8
 
-Postal uses JavaMail underneath, which defaults to charset
+Postal uses Jakarta Mail underneath, which defaults to charset
 `us-ascii`. To set the charset, set the `:type`, like `"text/html; charset=utf-8"`.
 
 #### Message ID
