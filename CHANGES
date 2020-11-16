@@ -1,3 +1,6 @@
+2.0.4
+* Jakarta Mail 1.6.5
+
 2.0.3
 * Make make-address better for constructing addresses (#77)
 * Allow bcc-only emails (#91)
