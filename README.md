@@ -19,7 +19,7 @@ SSL.
 ### Dependencies
 
 * Jakarta Mail (in `lib/` after build)
-* Java 8 (does not currently work with 11+)
+* Java 8+
 
 ### Install
 
