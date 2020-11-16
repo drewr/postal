@@ -87,7 +87,7 @@
       (doseq [addr addrs]
         (add-recipient! jmsg rtype addr charset)))
     :otherwise
-      (add-recipient! jmsg rtype addrs charset))
+    (add-recipient! jmsg rtype addrs charset))
   jmsg)
 
 (declare eval-bodypart eval-multipart)
@@ -115,19 +115,19 @@
                           encode-filename))
         (.setDisposition (name (:type part)))
         (cond-> (:content-type part)
-                (.setHeader "Content-Type" (:content-type part)))
+          (.setHeader "Content-Type" (:content-type part)))
         (cond-> (:content-id part)
-                (.setContentID (str "<" (:content-id part) ">")))
+          (.setContentID (str "<" (:content-id part) ">")))
         (cond-> (:file-name part)
-                (.setFileName (encode-filename (:file-name part))))
+          (.setFileName (encode-filename (:file-name part))))
         (cond-> (:description part)
-                (.setDescription (:description part)))))
+          (.setDescription (:description part)))))
     (doto (javax.mail.internet.MimeBodyPart.)
       (.setContent (:content part) (:type part))
       (cond-> (:file-name part)
-              (.setFileName (encode-filename (:file-name part))))
+        (.setFileName (encode-filename (:file-name part))))
       (cond-> (:description part)
-              (.setDescription (:description part))))))
+        (.setDescription (:description part))))))
 
 (defn eval-multipart [parts]
   (let [;; multiparts can have a number of different types: mixed,
