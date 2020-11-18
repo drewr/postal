@@ -1,15 +1,48 @@
-version: 2
-jobs:
-  build:
+version: 2.1
+
+executors:
+  jdk8:
     docker:
-      - image: clojure:lein-2.8.1
+    - image: clojure:openjdk-8-lein
+  jdk11:
+    docker:
+    - image: clojure:openjdk-11-lein
+  jdk14:
+    docker:
+    - image: clojure:openjdk-14-lein
+  jdk15:
+    docker:
+    - image: clojure:openjdk-15-lein
+  jdk16:
+    docker:
+    - image: clojure:openjdk-16-lein
+
+jobs:
+  postal:
+    parallelism: 4
+    parameters:
+      jdk:
+        type: executor
+    executor: << parameters.jdk >>
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "a6:08:d9:a8:b8:92:c3:d2:19:f4:0b:af:a6:8b:2b:7c"
       - checkout
       - restore_cache:
-          key: << checksum "project.clj" >>
+          key: cache-{{ checksum "project.clj" }}
       - run: lein test-all
       - save_cache:
           paths:
             - $HOME/.m2
             - $HOME/.lein
-          key: << checksum "project.clj" >>
+          key: cache-{{ checksum "project.clj" }}
+
+workflows:
+  all-tests:
+    jobs:
+      - postal:
+          matrix:
+            parameters:
+              jdk: [jdk8, jdk11, jdk14, jdk15, jdk16]
+              
