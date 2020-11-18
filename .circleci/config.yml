@@ -13,7 +13,7 @@ executors:
 
 jobs:
   postal:
-    parallelism: 2
+    parallelism: 4
     parameters:
       jdk:
         type: executor
