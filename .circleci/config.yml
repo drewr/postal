@@ -13,6 +13,9 @@ executors:
   jdk15:
     docker:
     - image: clojure:openjdk-15-lein
+  jdk16:
+    docker:
+    - image: clojure:openjdk-16-lein
 
 jobs:
   postal:
@@ -41,5 +44,5 @@ workflows:
       - postal:
           matrix:
             parameters:
-              jdk: [jdk8, jdk11, jdk14, jdk15]
+              jdk: [jdk8, jdk11, jdk14, jdk15, jdk16]
               
