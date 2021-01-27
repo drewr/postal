@@ -195,8 +195,8 @@
        (.setSubject (:subject msg) ^String charset)
        (.setSentDate (or (:date msg) (make-date)))
        (.addHeader "User-Agent" (:user-agent msg (user-agent)))
-       (add-extra! (apply dissoc msg standard))
        (add-body! (:body msg) charset)
+       (add-extra! (apply dissoc msg standard))
        (.saveChanges)))))
 
 (defn make-fixture [from to & {:keys [tag]}]
