@@ -25,8 +25,11 @@
   (:use [postal.message]
         [clojure.test :only [run-tests deftest is]]
         [clojure.java.io :as io]
+        [clojure.string :as str]
+        [clojure.data.codec.base64 :as b64]
         [postal.date :only [make-date]])
   (:import [java.util Properties UUID]
+           [java.lang String]
            [javax.mail Session Message$RecipientType]
            [javax.mail.internet MimeMessage InternetAddress
             AddressException]
@@ -84,6 +87,18 @@
                     :content f}]})]
     (is (.contains m "tempfile"))
     (.delete f)))
+
+(deftest test-inline-stream
+  ; https://github.com/mathiasbynens/small/blob/master/png-transparent.png
+  (let [png-bytes (byte-array (map byte [-119 80 78 71 13 10 26 10 0 0 0 13 73 72 68 82 0 0 0 1 0 0 0 1 8 6 0 0 0 31 21 -60 -119 0 0 0 10 73 68 65 84 120 -100 99 0 1 0 0 5 0 1 13 10 45 -76 0 0 0 0 73 69 78 68 -82 66 96 -126]))
+        m (message->str
+           {:from "foo@bar.dom"
+            :to "baz@bar.dom"
+            :subject "Test"
+            :body [{:type "image/png"
+                    :content png-bytes}]})]
+    (is (.contains (str/replace m #"[\r\n]" "") ; remove newlines to enable exact match using .contains
+                   (String. ^bytes (b64/encode png-bytes))))))
 
 (deftest test-attachment
   (let [f1 (doto (java.io.File/createTempFile "_postal-" ".txt"))
