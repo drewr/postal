@@ -86,13 +86,15 @@
        (format "<%s.%s@%s>" onlychars epoch host))))
 
 (defn pom-version []
-  (let [pom "META-INF/maven/com.draines/postal/pom.properties"
-        props (doto (Properties.)
-                (.load (-> pom io/resource io/input-stream)))]
-    (.getProperty props "version")))
+  (when-let [is (some-> (io/resource "META-INF/maven/com.draines/postal/pom.properties")
+                        io/input-stream)]
+    (.getProperty (doto (Properties.)
+                    (.load is))
+                  "version")))
 
 (defn user-agent []
-  (let [prop (Properties.)
-        ver (or (System/getProperty "postal.version")
-                (pom-version))]
-    (format "postal/%s" ver)))
+  (if-let [version (or (System/getProperty "postal.version")
+                       (pom-version))]
+    (format "postal/%s"
+            version)
+    "postal"))
