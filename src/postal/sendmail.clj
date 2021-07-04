@@ -58,7 +58,8 @@
 (defn find-sendmail []
   (if-let [SENDMAIL (System/getenv "SENDMAIL")]
     SENDMAIL
-    (first (filter #(.isFile (java.io.File. ^String %)) sendmails))))
+    (or (first (filter #(.isFile (java.io.File. ^String %)) sendmails))
+        (throw (ex-info "Can't find sendmail executable. Is sendmail installed?" {:searched-for sendmails})))))
 
 (defn sanitize [^String text]
   (.replaceAll text "\r\n" (System/getProperty "line.separator")))
