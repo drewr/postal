@@ -6,7 +6,7 @@ postal
 #### Internet email library for Clojure
 
 postal is a library for constructing and sending RFC822-compliant
-Internet email messages.  It wraps the JavaMail package for message
+Internet email messages.  It wraps the Jakarta Mail package for message
 and SMTP support.  It supports sendmail natively.  Supports STARTTLS &
 SSL.
 
@@ -18,7 +18,8 @@ SSL.
 
 ### Dependencies
 
-* JavaMail 1.5.5 (in `lib/` after build)
+* Jakarta Mail (in `lib/` after build)
+* Java 8+
 
 ### Install
 
@@ -88,20 +89,24 @@ specify one.
 If your destination supports TLS instead, you can use `:tls`.  This
 will default to port `25`, however, so if you need a different one
 make sure you supply `:port`.  (It's common for ISPs to block outgoing
-port 25 to relays that aren't theirs.  Gmail supports SSL & TLS but
-it's easiest to just use SSL since you'll likely need port 465
-anyway.)
+port 25 to relays that aren't theirs.)
 
     postal.core> (send-message {:host "smtp.gmail.com"
-                                :user "jsmith"
+                                :user "jsmith@gmail.com"
                                 :pass "sekrat!!1"
-                                :ssl true}
+                                :port 587
+                                :tls true}
                                {:from "me@draines.com"
                                 :to "foo@example.com"
                                 :subject "Hi!"
                                 :body "Test."})
     {:code 0, :error :SUCCESS, :message "message sent"}
     postal.core>
+    
+(Despite [the documentation](https://support.google.com/a/answer/176600)
+mentioning SSL, your Google account is most likely restricted to TLS on port `587` and 
+furthermore you may have to configure your account to
+["allow less secure apps"](https://myaccount.google.com/lesssecureapps) in order to send emails.)
 
 #### Amazon
 
@@ -138,7 +143,7 @@ Attachments and multipart messages can be added as sequences of maps:
     postal.core>
 
 If your attachment has a content-type that is not recognized by
-JavaMail, e.g., `.pdf` or `.doc`, you can set `:content-type`.  You
+Jakarta Mail, e.g., `.pdf` or `.doc`, you can set `:content-type`.  You
 can also set `:file-name` and `:description` if you don't like the
 filename that `:content` uses.
 
@@ -165,7 +170,7 @@ support (or suppress) HTML-mails:
 
 #### UTF-8
 
-Postal uses JavaMail underneath, which defaults to charset
+Postal uses Jakarta Mail underneath, which defaults to charset
 `us-ascii`. To set the charset, set the `:type`, like `"text/html; charset=utf-8"`.
 
 #### Message ID
@@ -233,6 +238,7 @@ Kyle Kingsbury
 Paul Biggar       
 Paul Stadig       
 Phil Hagelberg       
+Peter Onneby     
 Roman Flammer       
 Sam Ritchie       
 Stephen Nelson         
