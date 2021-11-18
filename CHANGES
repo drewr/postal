@@ -1,3 +1,6 @@
+2.0.5
+* Add support for supplying attachments as byte arrays
+
 2.0.4
 * Jakarta Mail 1.6.5
 
