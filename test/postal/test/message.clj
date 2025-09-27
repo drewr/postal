@@ -216,7 +216,7 @@
            :Content-Type "text/html"
            :body "<html><body>Foo!</body></html>"}]
     (is (.contains (message->str m) "User-Agent: Lorem Ipsum"))
-    (is (= (.getContentType (make-jmessage m)) "text/html"))))
+    (is (= (.getContentType ^MimeMessage (make-jmessage m)) "text/html"))))
 
 (deftest test-bad-addrs
   (let [m (message->str
