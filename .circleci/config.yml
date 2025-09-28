@@ -7,15 +7,15 @@ executors:
   jdk11:
     docker:
     - image: clojure:openjdk-11-lein
-  jdk14:
+  jdk17:
     docker:
-    - image: clojure:openjdk-14-lein
-  jdk15:
+    - image: clojure:openjdk-17-lein    
+  jdk21:
     docker:
-    - image: clojure:openjdk-15-lein
-  jdk16:
+    - image: clojure:temurin-21-lein-trixie
+  jdk25:
     docker:
-    - image: clojure:openjdk-16-lein
+    - image: clojure:temurin-25-lein-trixie
 
 jobs:
   postal:
@@ -44,5 +44,5 @@ workflows:
       - postal:
           matrix:
             parameters:
-              jdk: [jdk8, jdk11, jdk14, jdk15, jdk16]
+              jdk: [jdk8, jdk11, jdk17, jdk21, jdk25]
               
